@@ -19,7 +19,17 @@
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noUnknownAtRules": "off"
+        "noUnknownAtRules": "off",
+        "noDocumentCookie": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "a11y": {
+        "useFocusableInteractive": "error",
+        "useSemanticElements": "error",
+        "useAriaPropsForRole": "error",
+        "noRedundantRoles": "error"
       }
     },
     "domains": {
