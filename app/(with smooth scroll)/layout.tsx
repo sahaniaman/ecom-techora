@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "../globals.css";
 import { ReactLenis } from "lenis/react";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import "../globals.css";
+import { Poppins, Lexend, Nunito } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+export const poppins = Poppins({ subsets: ["latin"], variable: "--font-sans", weight: ["400","500","600","700","800","900"] });
+export const lexend = Lexend({ subsets: ["latin"], variable: "--font-sans-2", weight: ["400","500","600","700","800","900"] });
+export const nunito = Nunito({ subsets: ["latin"], variable: "--font-sans-3", weight: ["400","500","600","700","800","900"] });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,7 +24,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${poppins.variable} ${lexend.variable} ${nunito.variable}`}
       >
         <ThemeProvider
           attribute="class"
