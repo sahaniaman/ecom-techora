@@ -79,7 +79,7 @@ const PaymentMethodSchema = new Schema(
 
 // Main schema - Fixed type definitions
 const UserSchema = new Schema<IUser>(
-  {
+   {
     clerkId: { 
       type: String, 
       required: true, 
