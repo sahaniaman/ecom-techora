@@ -60,16 +60,16 @@ export async function POST(request: Request) {
   // handle user.created event
   if (eventType === "user.created") {
     try {
-      const data = evt.data as any; // Clerk user object
+      const data = evt.data; // Clerk user object
       const clerkId = data.id as string;
 
       // pick primary email / phone carefully
       const primaryEmailObj = Array.isArray(data.email_addresses)
-        ? data.email_addresses.find((e: any) => e.id === data.primary_email_address_id)
+        ? data.email_addresses.find((e) => e.id === data.primary_email_address_id)
         : undefined;
 
       const primaryPhoneObj = Array.isArray(data.phone_numbers)
-        ? data.phone_numbers.find((p: any) => p.id === data.primary_phone_number_id)
+        ? data.phone_numbers.find((p) => p.id === data.primary_phone_number_id)
         : undefined;
 
       if (!primaryEmailObj?.email_address) {
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
         profile: {
           firstName: data.first_name ?? "",
           lastName: data.last_name ?? "",
-          avatar: data.has_image ? data.image_url ?? data.profile_image_url ?? "" : "",
+          avatar: data.has_image ? data.image_url ?? "" : "",
         }
       };
 
