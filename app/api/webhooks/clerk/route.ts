@@ -114,6 +114,8 @@ export async function POST(request: Request) {
       return new Response("Error Occured", {status: 400})
     }
   }
+
+  return new Response("Webhook Recieved Successfully", {status: 200})
 }
 
 export async function GET() {
