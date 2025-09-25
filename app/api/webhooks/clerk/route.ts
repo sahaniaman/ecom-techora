@@ -70,10 +70,6 @@ export async function POST(request: Request) {
         primary_phone_number_id,
         image_url,
         has_image,
-        created_at,
-        updated_at,
-        last_sign_in_at,
-        last_active_at,
       } = evt.data;
 
       const clerkId = id;
@@ -108,10 +104,6 @@ export async function POST(request: Request) {
           firstName: first_name,
           lastName: last_name,
           avatar: avatar,
-          createdAt: created_at,
-          updatedAt: updated_at,
-          lastLoginAt: last_sign_in_at,
-          lastActiveAt: last_active_at,
         },
       });
 
