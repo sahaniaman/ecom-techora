@@ -36,7 +36,7 @@ export default function Home() {
       background="transparent"
       navbarSpacing="none"
       padding="none"
-      className="flex flex-col items-center justify-center min-h-screen w-full"
+      className="flex flex-col items-center justify-center min-h-screen pointer-events-auto w-full"
     >
       <Button onClick={handleAddProduct}>Add Product</Button>
     </SectionWrapper>
