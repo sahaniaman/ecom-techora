@@ -107,7 +107,7 @@ export async function POST(request: Request) {
         },
       });
       console.log("User Created in Database from webhook", newUser);
-      return new Response("User Created in Database from webhook", newUser);
+      return new Response("User Created in Database from webhook", {status: 200});
     } catch (err) {
       console.error("Error creating user   ", err);
       return new Response("Error Occured", { status: 400 });
