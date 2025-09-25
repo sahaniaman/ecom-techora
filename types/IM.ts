@@ -1,3 +1,5 @@
+// @/types/IM.ts
+
 export interface PaymentMethod {
   id: string;
   type: 'CARD' | 'PAYPAL' | 'BANK_TRANSFER';
