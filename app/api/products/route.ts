@@ -6,12 +6,12 @@ import type { IProduct } from "@/models/Products";
 import Product from "@/models/Products";
 import Category from "@/models/Category";
 import mongoose from "mongoose";
+import slugify from "slugify";
 
-// Define interface for product data
+// Error types
 interface MongoError extends Error {
   code?: number;
 }
-
 interface ValidationError extends Error {
   errors?: Record<string, { message: string }>;
 }
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
 
-    // Clerk auth check
+    // Clerk auth
     const { userId } = getAuth(request);
     if (!userId) {
       return NextResponse.json(
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     const productData = (await request.json()) as IProduct;
 
-    // required fields check
+    // required fields
     const requiredFields = [
       "name",
       "description",
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       "specifications",
     ] as const;
 
-    const missingFields = requiredFields.filter((field) => !productData[field]);
+    const missingFields = requiredFields.filter((f) => !productData[f]);
     if (missingFields.length > 0) {
       return NextResponse.json(
         { success: false, message: "Missing required fields", missingFields },
@@ -53,27 +53,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // --- 🔑 category resolve logic ---
+    // --- 🔑 category resolve/create ---
     let categoryId: string;
-    const categoryIdentifier = productData.category as unknown as string;
+    const categoryInput = productData.category as unknown as string;
 
-    if (mongoose.isValidObjectId(categoryIdentifier)) {
-      categoryId = categoryIdentifier;
+    if (mongoose.isValidObjectId(categoryInput)) {
+      categoryId = categoryInput;
     } else {
-      const cat = await Category.findOne({
-        $or: [{ slug: categoryIdentifier }, { name: categoryIdentifier }],
-      });
+      const slug = slugify(categoryInput, { lower: true, strict: true });
+      let category = await Category.findOne({ slug });
 
-      if (!cat) {
-        return NextResponse.json(
-          { success: false, message: "Category not found" },
-          { status: 400 }
-        );
+      if (!category) {
+        category = await Category.create({
+          name: categoryInput,
+          slug,
+          description: "",
+        });
       }
-      categoryId = cat._id.toString();
+
+      categoryId = category._id.toString();
     }
 
-    // calculate discounted price & discount
+    // price/discount calculation
     if (!productData.discountedPrice) {
       productData.discountedPrice = productData.basePrice;
     }
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
     // create product
     const product = new Product({
       ...productData,
-      category: categoryId, // 👈 assign resolved category id
+      category: categoryId,
       salesCount: productData.salesCount || 0,
       reservedStock: productData.reservedStock || 0,
       lowStockThreshold: productData.lowStockThreshold || 10,
@@ -125,33 +126,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      {
-        success: false,
-        message: "Internal server error",
-        error: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET() {
-  try {
-    await dbConnect();
-    const products = await Product.find({})
-      .populate("category")
-      .populate("subcategory")
-      .sort({ createdAt: -1 });
-
-    return NextResponse.json({ success: true, data: products }, { status: 200 });
-  } catch (error: unknown) {
-    console.error("Error fetching products:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Error fetching products",
-        error: error instanceof Error ? error.message : "Unknown error",
-      },
+      { success: false, message: "Internal server error", error: (error as Error).message },
       { status: 500 }
     );
   }

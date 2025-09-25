@@ -35,8 +35,11 @@ import {
 } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { ThemeToggleButton } from "../ui/skiper-ui/skiper26";
+import { getCurrentUser } from "@/lib/auth";
 
-const Navbar = () => {
+const Navbar = async () => {
+   const user = await getCurrentUser();
+    console.log("user      ", user)
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/50 bg-background/80 backdrop-blur-md font-serif">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -89,7 +92,7 @@ const Navbar = () => {
                   <div className="px-4 py-2 border-b">
                     <p className="text-sm font-medium">Welcome back!</p>
                     <p className="text-xs text-muted-foreground truncate">
-                      user@example.com
+                      {user && <span>{user.email}</span> }
                     </p>
                   </div>
                   <DropdownMenuItem asChild>

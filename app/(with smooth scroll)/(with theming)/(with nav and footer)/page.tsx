@@ -10,14 +10,14 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: "Test Product",
+          name: "Test Product 2",
           description: "Just for testing",
           basePrice: 500,
           brand: "TestBrand",
-          category: "mobiles",
+          category: "MObiles",
           images: ["https://example.com/test.jpg"],
           stock: 10,
-          sku: "TEST123",
+          sku: "TEST103",
           features: ["Feature A"],
           specifications: { ram: "4GB" }
         })
