@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   
   if (eventType === "user.created") {
     try {
-      dbConnect();
+      await dbConnect();
 
           // First user should be Admin
     const userCount = await User.countDocuments();
