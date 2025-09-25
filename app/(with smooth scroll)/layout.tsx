@@ -1,14 +1,10 @@
-import type { Metadata } from "next";
+import {
+  ClerkProvider
+} from '@clerk/nextjs';
 import { ReactLenis } from "lenis/react";
+import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import "../globals.css";
-import { Poppins, Lexend, Nunito } from "next/font/google";
-
-export const poppins = Poppins({ subsets: ["latin"], variable: "--font-sans", weight: ["400","500","600","700","800","900"] });
-export const lexend = Lexend({ subsets: ["latin"], variable: "--font-sans-2", weight: ["400","500","600","700","800","900"] });
-export const nunito = Nunito({ subsets: ["latin"], variable: "--font-sans-3", weight: ["400","500","600","700","800","900"] });
-
-
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -21,10 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <ClerkProvider>
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${poppins.variable} ${lexend.variable} ${nunito.variable}`}
       >
         <ThemeProvider
           attribute="class"
@@ -36,5 +32,6 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
+    </ClerkProvider>
   );
 }
