@@ -101,8 +101,8 @@ export async function POST(request: Request) {
       // Recommended with basic profile
       const newUser = await User.create({
         clerkId: clerkId,
-        email: primaryEmail,
-        phone: primaryPhoneNumber,
+        email: primaryEmail.email_address,
+        phone: primaryPhoneNumber?.phone_number,
         role: role,
         profile: {
           firstName: first_name,
