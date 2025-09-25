@@ -104,7 +104,7 @@ const UserSchema = new Schema<IUser>(
     status: {
       type: String,
       enum: Object.values(UserStatus),
-      default: UserStatus.PENDING_VERIFICATION,
+      default: UserStatus.ACTIVE,
     },
 
     // Fixed: Remove required and default from nested schemas
