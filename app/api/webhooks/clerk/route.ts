@@ -56,6 +56,10 @@ export async function POST(request: Request) {
     try {
       dbConnect();
 
+          // First user should be Admin
+    const userCount = await User.countDocuments();
+    const role = userCount === 0 ? "SUPER_ADMIN" : "USER";
+
       const {
         id,
         first_name,
@@ -99,6 +103,7 @@ export async function POST(request: Request) {
         clerkId: clerkId,
         email: primaryEmail,
         phone: primaryPhoneNumber,
+        role: role,
         profile: {
           firstName: first_name,
           lastName: last_name,
