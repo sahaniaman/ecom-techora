@@ -27,11 +27,11 @@ export async function POST(request: Request) {
 
   const payload = await request.json();
   const body = JSON.stringify(payload);
-  
+
   const wh = new Webhook(CLERK_WEBHOOK_SECRET);
-  
+
   let evt: WebhookEvent;
-  
+
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
@@ -42,23 +42,23 @@ export async function POST(request: Request) {
     console.error("Error Verifying Webhook", err);
     return new Response("Error Occured - Verifying Webhook", { status: 400 });
   }
-  
+
   const { id } = evt.data;
   const eventType = evt.type;
-  
+
   console.log("CLERK_WEBHOOK_SECRET     ", CLERK_WEBHOOK_SECRET);
   console.log("payload body     ", body);
   console.log("evt     ", evt);
   console.log("id     ", id);
   console.log("eventType     ", eventType);
-  
+
   if (eventType === "user.created") {
     try {
       await dbConnect();
 
-          // First user should be Admin
-    const userCount = await User.countDocuments();
-    const role = userCount === 0 ? "SUPER_ADMIN" : "USER";
+      // First user should be Admin
+      const userCount = await User.countDocuments();
+      const role = userCount === 0 ? "SUPER_ADMIN" : "USER";
 
       const {
         id,
@@ -79,8 +79,8 @@ export async function POST(request: Request) {
       );
 
       const primaryPhoneNumber = phone_numbers.find(
-        (phoneNumber) => phoneNumber.id === primary_phone_number_id
-      )
+        (phoneNumber) => phoneNumber.id === primary_phone_number_id,
+      );
 
       let avatar: string = "";
 
@@ -106,16 +106,15 @@ export async function POST(request: Request) {
           avatar: avatar,
         },
       });
-
-      return new Response("User Created in Database from webhook", newUser)
-
+      console.log("User Created in Database from webhook", newUser);
+      return new Response("User Created in Database from webhook", newUser);
     } catch (err) {
-      console.error("Error creating user   ", err)
-      return new Response("Error Occured", {status: 400})
+      console.error("Error creating user   ", err);
+      return new Response("Error Occured", { status: 400 });
     }
   }
 
-  return new Response("Webhook Recieved Successfully")
+  return new Response("Webhook Recieved Successfully");
 }
 
 export async function GET() {
