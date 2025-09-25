@@ -1,156 +1,121 @@
 import type { WebhookEvent } from "@clerk/nextjs/server";
-import type { NextRequest } from "next/server";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
-import { UserRole, UserStatus } from "@/types/User";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
+  const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
+
+  if (!CLERK_WEBHOOK_SECRET) {
+    throw new Error(
+      "Please define the CLERK_WEBHOOK_SECRET environment variable inside .env",
+    );
+  }
+
+  const headerPayload = headers();
+  const awaitedHeaderPayload = await headerPayload;
+
+  const svix_id = awaitedHeaderPayload.get("svix-id");
+  const svix_timestamp = awaitedHeaderPayload.get("svix-timestamp");
+  const svix_signature = awaitedHeaderPayload.get("svix-signature");
+
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    return new Response("Error Occured - No svix header");
+  }
+
+  const payload = await request.json();
+  const body = JSON.stringify(payload);
+  
+  const wh = new Webhook(CLERK_WEBHOOK_SECRET);
+  
+  let evt: WebhookEvent;
+  
   try {
-    await dbConnect();
-
-    const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
-
-    if (!CLERK_WEBHOOK_SECRET) {
-      throw new Error(
-        "Please define the CLERK_WEBHOOK_SECRET environment variable inside .env.local",
-      );
-    }
-
-    // Get headers
-    const svix_id = request.headers.get("svix-id");
-    const svix_timestamp = request.headers.get("svix-timestamp");
-    const svix_signature = request.headers.get("svix-signature");
-
-    // If there are no headers, error out
-    if (!svix_id || !svix_timestamp || !svix_signature) {
-      return new NextResponse("Error occured -- no svix headers", {
-        status: 400,
-      });
-    }
-
-    // Get the body
-    const payload = await request.json();
-    const body = JSON.stringify(payload);
-
-    // Create a new Svix instance with your secret.
-    const wh = new Webhook(CLERK_WEBHOOK_SECRET);
-
-    let evt: WebhookEvent;
-
-    // Verify the payload with the headers
+    evt = wh.verify(body, {
+      "svix-id": svix_id,
+      "svix-signature": svix_signature,
+      "svix-timestamp": svix_timestamp,
+    }) as WebhookEvent;
+  } catch (err) {
+    console.error("Error Verifying Webhook", err);
+    return new Response("Error Occured - Verifying Webhook", { status: 400 });
+  }
+  
+  const { id } = evt.data;
+  const eventType = evt.type;
+  
+  console.log("CLERK_WEBHOOK_SECRET     ", CLERK_WEBHOOK_SECRET);
+  console.log("payload body     ", body);
+  console.log("evt     ", evt);
+  console.log("id     ", id);
+  console.log("eventType     ", eventType);
+  
+  if (eventType === "user.created") {
     try {
-      evt = wh.verify(body, {
-        "svix-id": svix_id,
-        "svix-timestamp": svix_timestamp,
-        "svix-signature": svix_signature,
-      }) as WebhookEvent;
-    } catch (err) {
-      console.error("Error verifying webhook:", err);
-      return new NextResponse("Error occured", {
-        status: 400,
-      });
-    }
+      dbConnect();
 
-    // Handle the webhook
-    const eventType = evt.type;
-
-    if (eventType === "user.created") {
       const {
         id,
-        email_addresses,
         first_name,
         last_name,
-        image_url,
+        email_addresses,
+        primary_email_address_id,
         phone_numbers,
+        primary_phone_number_id,
+        image_url,
+        has_image,
+        created_at,
+        updated_at,
+        last_sign_in_at,
+        last_active_at,
       } = evt.data;
 
-      // Create user in database
-      const userData = {
-        clerkId: id,
-        email: email_addresses[0]?.email_address,
-        phone: phone_numbers[0]?.phone_number,
-        profile: {
-          firstName: first_name || "",
-          lastName: last_name || "",
-          avatar: image_url,
-        },
-        role: UserRole.USER,
-        status: UserStatus.ACTIVE,
-        emailVerified: email_addresses[0]?.verification?.status === "verified",
-        phoneVerified: phone_numbers[0]?.verification?.status === "verified",
-      };
+      const clerkId = id;
 
-      // Check if user already exists (safety check)
-      const existingUser = await User.findOne({
-        $or: [{ clerkId: id }, { email: userData.email }],
-      });
+      const primaryEmail = email_addresses.find(
+        (email) => email.id === primary_email_address_id,
+      );
 
-      if (existingUser) {
-        console.log("User already exists:", id);
-        return NextResponse.json({
-          success: true,
-          message: "User already exists",
-        });
+      const primaryPhoneNumber = phone_numbers.find(
+        (phoneNumber) => phoneNumber.id === primary_phone_number_id
+      )
+
+      let avatar: string = "";
+
+      if (has_image) {
+        avatar = image_url;
       }
 
-      // Create new user
-      const newUser = new User(userData);
-      await newUser.save();
+      console.log("primaryEmail   ", primaryEmail);
 
-      console.log("User created successfully:", id);
-      return NextResponse.json({ success: true, message: "User created" });
-    }
+      if (!primaryEmail) {
+        return new Response("No Primary Email was Found.", { status: 404 });
+      }
 
-    if (eventType === "user.updated") {
-      const {
-        id,
-        email_addresses,
-        first_name,
-        last_name,
-        image_url,
-        phone_numbers,
-      } = evt.data;
-
-      await User.findOneAndUpdate(
-        { clerkId: id },
-        {
-          email: email_addresses[0]?.email_address,
-          phone: phone_numbers[0]?.phone_number,
-          "profile.firstName": first_name,
-          "profile.lastName": last_name,
-          "profile.avatar": image_url,
-          emailVerified:
-            email_addresses[0]?.verification?.status === "verified",
-          phoneVerified: phone_numbers[0]?.verification?.status === "verified",
+      // Recommended with basic profile
+      const newUser = await User.create({
+        clerkId: clerkId,
+        email: primaryEmail,
+        phone: primaryPhoneNumber,
+        profile: {
+          firstName: first_name,
+          lastName: last_name,
+          avatar: avatar,
+          createdAt: created_at,
+          updatedAt: updated_at,
+          lastLoginAt: last_sign_in_at,
+          lastActiveAt: last_active_at,
         },
-      );
+      });
 
-      console.log("User updated successfully:", id);
-      return NextResponse.json({ success: true, message: "User updated" });
+      return new Response("User Created in Database from webhook", newUser)
+
+    } catch (err) {
+      console.error("Error creating user   ", err)
+      return new Response("Error Occured", {status: 400})
     }
-
-    if (eventType === "user.deleted") {
-      const { id } = evt.data;
-
-      // Soft delete - mark user as inactive instead of deleting
-      await User.findOneAndUpdate(
-        { clerkId: id },
-        { status: UserStatus.INACTIVE },
-      );
-
-      console.log("User marked as inactive:", id);
-      return NextResponse.json({ success: true, message: "User deactivated" });
-    }
-
-    return NextResponse.json({ success: true, message: "Webhook processed" });
-  } catch (error) {
-    console.error("Webhook error:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 },
-    );
   }
 }
 

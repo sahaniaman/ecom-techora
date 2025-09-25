@@ -21,6 +21,7 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   lastLoginAt?: Date;
+  lastActiveAt?: Date;
   emailVerified: boolean;
   phoneVerified: boolean;
 }

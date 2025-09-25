@@ -5,23 +5,23 @@ import {
   SignInButton,
   SignOutButton,
   SignUpButton,
+  UserButton,
 } from "@clerk/nextjs";
 import {
-    ArrowRight,
-    Heart,
-    LogOut,
-    MapPin,
-    Package,
-    Search,
-    Settings,
-    ShoppingCart,
-    Sparkles,
-    User,
-    Smartphone, 
-    Shirt,      
-    Home,
-    Gamepad2,       
-     
+  ArrowRight,
+  Heart,
+  LogOut,
+  MapPin,
+  Package,
+  Search,
+  Settings,
+  ShoppingCart,
+  Sparkles,
+  User,
+  Smartphone,
+  Shirt,
+  Home,
+  Gamepad2,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
@@ -70,6 +70,10 @@ const Navbar = () => {
           {/* Navigation Icons */}
           <div className="flex items-center space-x-1 sm:space-x-2">
             {/* User Menu */}
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+
             <DropdownMenu>
               <DropdownMenuTrigger
                 className={cn(
@@ -79,6 +83,7 @@ const Navbar = () => {
               >
                 <User className="w-5 h-5" />
               </DropdownMenuTrigger>
+              
               <DropdownMenuContent className="w-56 glass" align="end">
                 <SignedIn>
                   <div className="px-4 py-2 border-b">

@@ -1,11 +1,11 @@
-import { Address } from "./Address";
-import { CartItem, PaymentMethod } from "./IM";
+import type { Address } from "./Address";
+import type { CartItem, PaymentMethod } from "./IM";
 
 export enum UserRole {
   USER = "USER",
   ADMIN = "ADMIN",
   SUPER_ADMIN = "SUPER_ADMIN",
-  VENDOR = "VENDOR", // If you have multiple sellers
+  VENDOR = "VENDOR", 
 }
 
 export enum UserStatus {
