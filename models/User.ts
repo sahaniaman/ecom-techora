@@ -9,21 +9,21 @@ export interface IUser extends Document {
   clerkId: string;
   email: string;
   phone?: string;
-  role: UserRole;
-  status: UserStatus;
-  profile: UserProfile;
-  preferences: UserPreferences;
-  addresses: Address[];
+  role?: UserRole;
+  status?: UserStatus;
+  profile?: UserProfile;
+  preferences?: UserPreferences;
+  addresses?: Address[];
   paymentMethods?: PaymentMethod[];
-  wishlist: string[];
-  cart: CartItem[];
-  orderHistory: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  wishlist?: string[];
+  cart?: CartItem[];
+  orderHistory?: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
   lastLoginAt?: Date;
   lastActiveAt?: Date;
-  emailVerified: boolean;
-  phoneVerified: boolean;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
 }
 
 // Sub-schemas - Properly define with default values
