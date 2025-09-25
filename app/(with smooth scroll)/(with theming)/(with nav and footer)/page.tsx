@@ -14,7 +14,7 @@ export default function Home() {
           description: "Just for testing",
           basePrice: 500,
           brand: "TestBrand",
-          category: "66f2c66f7dcd6b001ed8d9a1",
+          category: "mobiles",
           images: ["https://example.com/test.jpg"],
           stock: 10,
           sku: "TEST123",
