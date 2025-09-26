@@ -10,10 +10,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ success: true, user });
-  } catch (err: any) {
-    return NextResponse.json(
-      { success: false, error: err.message },
-      { status: 500 }
-    );
+  } catch (err) {
+    return NextResponse.json({ success: false, error: err }, { status: 500 });
   }
 }

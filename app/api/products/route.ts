@@ -1,12 +1,12 @@
 import { getAuth } from "@clerk/nextjs/server";
+import mongoose from "mongoose";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import slugify from "slugify";
 import dbConnect from "@/lib/mongodb";
+import Category from "@/models/Category";
 import type { IProduct } from "@/models/Products";
 import Product from "@/models/Products";
-import Category from "@/models/Category";
-import mongoose from "mongoose";
-import slugify from "slugify";
 
 // Error types
 interface MongoError extends Error {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     if (missingFields.length > 0) {
       return NextResponse.json(
         { success: false, message: "Missing required fields", missingFields },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -102,8 +102,12 @@ export async function POST(request: NextRequest) {
     const savedProduct = await product.save();
 
     return NextResponse.json(
-      { success: true, message: "Product added successfully", data: savedProduct },
-      { status: 201 }
+      {
+        success: true,
+        message: "Product added successfully",
+        data: savedProduct,
+      },
+      { status: 201 },
     );
   } catch (error: unknown) {
     console.error("Error adding product:", error);
@@ -112,22 +116,28 @@ export async function POST(request: NextRequest) {
     if (mongoError.code === 11000) {
       return NextResponse.json(
         { success: false, message: "Product with this SKU already exists" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const validationError = error as ValidationError;
     if (validationError.name === "ValidationError" && validationError.errors) {
-      const errors = Object.values(validationError.errors).map((err) => err.message);
+      const errors = Object.values(validationError.errors).map(
+        (err) => err.message,
+      );
       return NextResponse.json(
         { success: false, message: "Validation error", errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
-      { success: false, message: "Internal server error", error: (error as Error).message },
-      { status: 500 }
+      {
+        success: false,
+        message: "Internal server error",
+        error: (error as Error).message,
+      },
+      { status: 500 },
     );
   }
 }

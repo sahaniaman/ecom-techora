@@ -2,7 +2,7 @@
 
 export interface PaymentMethod {
   id: string;
-  type: 'CARD' | 'PAYPAL' | 'BANK_TRANSFER';
+  type: "CARD" | "PAYPAL" | "BANK_TRANSFER";
   isDefault: boolean;
   card?: {
     last4: string;
@@ -42,6 +42,6 @@ export interface ReturnRequest {
     quantity: number;
     reason: string;
   }[];
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSED';
+  status: "PENDING" | "APPROVED" | "REJECTED" | "PROCESSED";
   createdAt: Date;
 }

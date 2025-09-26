@@ -5,7 +5,7 @@ export enum UserRole {
   USER = "USER",
   ADMIN = "ADMIN",
   SUPER_ADMIN = "SUPER_ADMIN",
-  VENDOR = "VENDOR", 
+  VENDOR = "VENDOR",
 }
 
 export enum UserStatus {
@@ -29,7 +29,7 @@ export interface UserPreferences {
   newsletter: boolean;
   language: string;
   currency: string;
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
 }
 
 export interface User {

@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import {
   SignedIn,
   SignedOut,
@@ -9,21 +8,24 @@ import {
 } from "@clerk/nextjs";
 import {
   ArrowRight,
+  Crown,
   Heart,
   LogOut,
   MapPin,
   Package,
+  Phone,
+  RotateCcw,
   Search,
   Settings,
   ShoppingCart,
   Sparkles,
   User,
-  Smartphone,
-  Shirt,
-  Home,
-  Gamepad2,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth";
+import { cn } from "@/lib/utils";
+import { ProductCategory } from "@/types/product";
 import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
 import {
@@ -35,11 +37,31 @@ import {
 } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { ThemeToggleButton } from "../ui/skiper-ui/skiper26";
-import { getCurrentUser } from "@/lib/auth";
 
 const Navbar = async () => {
-   const user = await getCurrentUser();
-    console.log("user      ", user)
+  const categories = [
+    {
+      id: ProductCategory.MOBILE_ACCESSORIES,
+      name: "Mobile Accessories",
+      icon: <Phone className="w-4 h-4" />,
+    },
+    {
+      id: ProductCategory.PREMIUM_PHONES,
+      name: "Premium Phones",
+      icon: <Crown className="w-4 h-4" />,
+    },
+    {
+      id: ProductCategory.REFURBISHED_PHONES,
+      name: "Refurbished Phones",
+      icon: <RotateCcw className="w-4 h-4" />,
+    },
+    {
+      id: ProductCategory.GADGETS,
+      name: "Gadgets",
+      icon: <Zap className="w-4 h-4" />,
+    },
+  ];
+  const user = await getCurrentUser();
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/50 bg-background/80 backdrop-blur-md font-serif">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -86,13 +108,13 @@ const Navbar = async () => {
               >
                 <User className="w-5 h-5" />
               </DropdownMenuTrigger>
-              
+
               <DropdownMenuContent className="w-56 glass" align="end">
                 <SignedIn>
                   <div className="px-4 py-2 border-b">
                     <p className="text-sm font-medium">Welcome back!</p>
                     <p className="text-xs text-muted-foreground truncate">
-                      {user && <span>{user.email}</span> }
+                      {user && <span>{user.email}</span>}
                     </p>
                   </div>
                   <DropdownMenuItem asChild>
@@ -133,16 +155,34 @@ const Navbar = async () => {
                   </DropdownMenuItem>
 
                   {/* Admin Section */}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin"
-                      className="flex items-center cursor-pointer"
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Admin Panel
-                    </Link>
-                  </DropdownMenuItem>
+                  {user.role === "SUPER_ADMIN" && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href="/admin"
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Super Admin Panel
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {user.role === "ADMIN" && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href="/admin"
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Admin Panel
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
 
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="cursor-pointer">
@@ -223,53 +263,18 @@ const Navbar = async () => {
         {/* Navigation Menu */}
         <nav className="border-t border-border/50">
           <ul className="flex flex-wrap gap-4 sm:gap-8 py-4">
-            {/* Electronics Category */}
-            <li>
-              <Link
-                href="/category/electronics"
-                className="text-muted-foreground hover:text-primary font-medium text-sm transition-colors flex items-center space-x-2 group"
-              >
-                <Smartphone className="w-4 h-4" />
-                <span className="hidden sm:inline">Electronics</span>
-                <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-1 group-hover:translate-x-0" />
-              </Link>
-            </li>
-
-            {/* Fashion Category */}
-            <li>
-              <Link
-                href="/category/fashion"
-                className="text-muted-foreground hover:text-primary font-medium text-sm transition-colors flex items-center space-x-2 group"
-              >
-                <Shirt className="w-4 h-4" />
-                <span className="hidden sm:inline">Fashion</span>
-                <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-1 group-hover:translate-x-0" />
-              </Link>
-            </li>
-
-            {/* Home & Garden Category */}
-            <li>
-              <Link
-                href="/category/home"
-                className="text-muted-foreground hover:text-primary font-medium text-sm transition-colors flex items-center space-x-2 group"
-              >
-                <Home className="w-4 h-4" />
-                <span className="hidden sm:inline">Home & Garden</span>
-                <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-1 group-hover:translate-x-0" />
-              </Link>
-            </li>
-
-            {/* Sports Category */}
-            <li>
-              <Link
-                href="/category/sports"
-                className="text-muted-foreground hover:text-primary font-medium text-sm transition-colors flex items-center space-x-2 group"
-              >
-                <Gamepad2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Sports</span>
-                <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-1 group-hover:translate-x-0" />
-              </Link>
-            </li>
+            {categories.map((category) => (
+              <li key={category.id}>
+                <Link
+                  href={`/category/${category.id}`}
+                  className="text-muted-foreground hover:text-primary font-medium text-sm transition-colors flex items-center space-x-2 group"
+                >
+                  {category.icon}
+                  <span className="hidden sm:inline">{category.name}</span>
+                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-1 group-hover:translate-x-0" />
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>

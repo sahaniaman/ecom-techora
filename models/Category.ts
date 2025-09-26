@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import { model, models, Schema } from "mongoose";
 
 const categorySchema = new Schema(
   {
@@ -6,7 +6,7 @@ const categorySchema = new Schema(
     slug: { type: String, required: true, unique: true },
     description: { type: String, default: "" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Category = models.Category || model("Category", categorySchema);

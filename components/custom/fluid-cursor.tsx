@@ -1,7 +1,7 @@
-'use client';
-import { useEffect } from 'react';
+"use client";
+import { useEffect } from "react";
 
-import fluidCursor from '@/hooks/use-FluidCursor';
+import fluidCursor from "@/hooks/use-FluidCursor";
 
 const FluidCursor = () => {
   useEffect(() => {
@@ -9,8 +9,8 @@ const FluidCursor = () => {
   }, []);
 
   return (
-    <div className='fixed top-0 left-0 z-2 h-full w-full'>
-      <canvas id='fluid' className='w-screen h-screen' />
+    <div className="fixed top-0 left-0 z-2 h-full w-full">
+      <canvas id="fluid" className="w-screen h-screen" />
     </div>
   );
 };

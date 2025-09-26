@@ -1,6 +1,4 @@
-import {
-  ClerkProvider
-} from '@clerk/nextjs';
+import { ClerkProvider } from "@clerk/nextjs";
 import { ReactLenis } from "lenis/react";
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -18,20 +16,18 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-    <html lang="en" suppressHydrationWarning>
-      <body
-        suppressHydrationWarning
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ReactLenis root>{children}</ReactLenis>
-        </ThemeProvider>
-      </body>
-    </html>
+      <html lang="en" suppressHydrationWarning>
+        <body suppressHydrationWarning>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ReactLenis root>{children}</ReactLenis>
+          </ThemeProvider>
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

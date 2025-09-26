@@ -3,9 +3,5 @@ export default function ThemedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

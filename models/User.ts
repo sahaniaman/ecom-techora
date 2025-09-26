@@ -35,7 +35,7 @@ const ProfileSchema = new Schema<UserProfile>(
     avatar: { type: String, default: "" },
     bio: { type: String, default: "" },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const PreferencesSchema = new Schema<UserPreferences>(
@@ -47,17 +47,17 @@ const PreferencesSchema = new Schema<UserPreferences>(
     currency: { type: String, default: "NPR" },
     theme: { type: String, enum: ["light", "dark", "auto"], default: "auto" },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const AddressSchema = new Schema(
-  { 
+  {
     street: { type: String, default: "" },
     city: { type: String, default: "" },
     country: { type: String, default: "" },
-    postalCode: { type: String, default: "" }
+    postalCode: { type: String, default: "" },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const CartItemSchema = new Schema(
@@ -65,7 +65,7 @@ const CartItemSchema = new Schema(
     productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
     quantity: { type: Number, default: 1, min: 1 },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const PaymentMethodSchema = new Schema(
@@ -75,24 +75,24 @@ const PaymentMethodSchema = new Schema(
     last4: { type: String, required: true },
     expiry: { type: String, required: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Main schema - Fixed type definitions
 const UserSchema = new Schema<IUser>(
-   {
-    clerkId: { 
-      type: String, 
-      required: true, 
-      unique: true, 
-      index: true 
+  {
+    clerkId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
     },
-    email: { 
-      type: String, 
-      required: true, 
-      unique: true, 
+    email: {
+      type: String,
+      required: true,
+      unique: true,
       lowercase: true,
-      index: true
+      index: true,
     },
     phone: { type: String, default: "" },
 
@@ -113,23 +113,27 @@ const UserSchema = new Schema<IUser>(
 
     addresses: { type: [AddressSchema], default: [] },
     paymentMethods: { type: [PaymentMethodSchema], default: [] },
-    wishlist: [{ 
-      type: Schema.Types.ObjectId, 
-      ref: "Product", 
-      default: [] 
-    }],
+    wishlist: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        default: [],
+      },
+    ],
     cart: { type: [CartItemSchema], default: [] },
-    orderHistory: [{ 
-      type: Schema.Types.ObjectId, 
-      ref: "Order", 
-      default: [] 
-    }],
+    orderHistory: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Order",
+        default: [],
+      },
+    ],
 
     lastLoginAt: { type: Date, default: null },
     emailVerified: { type: Boolean, default: false },
     phoneVerified: { type: Boolean, default: false },
   },
-  { 
+  {
     timestamps: true,
     toJSON: {
       transform: (_: Document, ret: Record<string, unknown>) => {
@@ -137,20 +141,20 @@ const UserSchema = new Schema<IUser>(
         delete ret._id;
         delete ret?.__v;
         return ret;
-      }
-    }
-  }
+      },
+    },
+  },
 );
 
 // Set default values for nested objects using pre-save middleware
-UserSchema.pre('save', function(next) {
+UserSchema.pre("save", function (next) {
   if (!this.profile) {
     this.profile = {
       firstName: "",
       lastName: "",
       dateOfBirth: undefined,
       avatar: "",
-      bio: ""
+      bio: "",
     };
   }
 
@@ -161,7 +165,7 @@ UserSchema.pre('save', function(next) {
       newsletter: false,
       language: "en",
       currency: "NPR",
-      theme: "auto"
+      theme: "auto",
     };
   }
 

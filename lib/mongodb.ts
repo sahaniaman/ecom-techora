@@ -1,9 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  throw new Error(
+    "Please define the MONGODB_URI environment variable inside .env.local",
+  );
 }
 
 /**
@@ -35,7 +37,9 @@ async function dbConnect(): Promise<typeof mongoose> {
   }
 
   if (!MONGODB_URI) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+    throw new Error(
+      "Please define the MONGODB_URI environment variable inside .env.local",
+    );
   }
 
   if (!cached.promise) {
@@ -55,7 +59,7 @@ async function dbConnect(): Promise<typeof mongoose> {
 
   // At this point, cached.conn should not be null, but we'll add a check
   if (!cached.conn) {
-    throw new Error('Failed to establish database connection');
+    throw new Error("Failed to establish database connection");
   }
 
   return cached.conn;

@@ -1,4 +1,4 @@
-import { Address } from "./Address";
+import type { Address } from "./Address";
 
 export enum ProductCategory {
   MOBILE_ACCESSORIES = "mobile-accessories",
@@ -6,7 +6,6 @@ export enum ProductCategory {
   REFURBISHED_PHONES = "refurbished-phones",
   GADGETS = "gadgets",
 }
-
 
 export interface ProductVariant {
   id: string;
@@ -19,40 +18,40 @@ export interface ProductVariant {
 }
 
 export interface Product {
-  id: string
-  name: string
-  description: string
-  basePrice: number
-  discountedPrice: number
-  discount: number
-  category: ProductCategory
-  subcategory?: string
-  images: string[]
+  id: string;
+  name: string;
+  description: string;
+  basePrice: number;
+  discountedPrice: number;
+  discount: number;
+  category: ProductCategory;
+  subcategory?: string;
+  images: string[];
 
   // Stock management
-  stock: number                    // ✅ YEH ADD KARNA BHOOL GAYA THA
-  sku: string                     // Stock Keeping Unit
-  lowStockThreshold: number       // Jab stock 5 se kam ho to alert
+  stock: number; // ✅ YEH ADD KARNA BHOOL GAYA THA
+  sku: string; // Stock Keeping Unit
+  lowStockThreshold: number; // Jab stock 5 se kam ho to alert
 
   // Sales tracking
-  salesCount: number              // Kitne beche gaye
-  reservedStock: number           // Orders mein reserved stock
+  salesCount: number; // Kitne beche gaye
+  reservedStock: number; // Orders mein reserved stock
 
-  variants: ProductVariant[]
-  brand: string
-  features: string[]
-  specifications: Record<string, string>
-  tags: string[]
+  variants: ProductVariant[];
+  brand: string;
+  features: string[];
+  specifications: Record<string, string>;
+  tags: string[];
 
-  status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK'
-  isFeatured: boolean
+  status: "ACTIVE" | "INACTIVE" | "OUT_OF_STOCK";
+  isFeatured: boolean;
 
   // Ratings
-  rating: number
-  reviewCount: number
+  rating: number;
+  reviewCount: number;
 
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface OrderItem {

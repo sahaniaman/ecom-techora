@@ -1,11 +1,11 @@
 export interface User {
-  id: string
-  email: string
-  name: string
-  phone?: string
-  role: UserRole
-  addresses?: Address[]
-  createdAt: Date
+  id: string;
+  email: string;
+  name: string;
+  phone?: string;
+  role: UserRole;
+  addresses?: Address[];
+  createdAt: Date;
 }
 
 export enum UserRole {
@@ -15,39 +15,39 @@ export enum UserRole {
 }
 
 export interface AuthState {
-  user: User | null
-  isAuthenticated: boolean
-  isLoading: boolean
-  error: string | null
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
 }
 
 export interface Address {
-  id?: string
-  fullName: string
-  phone: string
-  email: string
-  addressLine1: string
-  addressLine2?: string
-  city: string
-  state: string
-  postalCode: string
-  country: string
-  isDefault?: boolean
+  id?: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDefault?: boolean;
 }
 
 export interface LoginCredentials {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 export interface SignupCredentials {
-  name: string
-  email: string
-  password: string
-  phone?: string
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
 }
 
 export interface OTPVerification {
-  email: string
-  otp: string
+  email: string;
+  otp: string;
 }
