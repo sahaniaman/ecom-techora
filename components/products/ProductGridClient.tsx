@@ -1,12 +1,11 @@
 "use client";
 
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Filter, Grid3X3, List } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/cards/ProductCard";
-import type { Product } from "@/types/product";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import type { Product } from "@/types/product";
 
 interface ProductGridClientProps {
   filteredProducts: Product[];
@@ -17,13 +16,13 @@ interface ProductGridClientProps {
   className?: string;
 }
 
-function ProductGridClient({ 
-  filteredProducts, 
-  searchQuery, 
+function ProductGridClient({
+  filteredProducts,
+  searchQuery,
   clearAllFilters,
   viewMode = "grid",
   onViewModeChange,
-  className 
+  className,
 }: ProductGridClientProps) {
   if (filteredProducts.length === 0) {
     return (
@@ -73,16 +72,18 @@ function ProductGridClient({
       )}
 
       {/* Products Grid/List */}
-      <div className={cn(
-        "gap-6",
-        viewMode === "grid" 
-          ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
-          : "space-y-4"
-      )}>
+      <div
+        className={cn(
+          "gap-6",
+          viewMode === "grid"
+            ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+            : "space-y-4",
+        )}
+      >
         {filteredProducts.map((product) => (
-          <ProductCard 
-            key={product.id} 
-            product={product} 
+          <ProductCard
+            key={product.id}
+            product={product}
             size={viewMode === "list" ? "sm" : "md"}
             className={viewMode === "list" ? "flex-row items-center" : ""}
           />

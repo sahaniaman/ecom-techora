@@ -155,7 +155,7 @@ const Navbar = async () => {
                   </DropdownMenuItem>
 
                   {/* Admin Section */}
-                  {user.role === "SUPER_ADMIN" && (
+                  { user && user.role === "SUPER_ADMIN" && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
@@ -169,7 +169,7 @@ const Navbar = async () => {
                       </DropdownMenuItem>
                     </>
                   )}
-                  {user.role === "ADMIN" && (
+                  {user && user.role === "ADMIN" && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>

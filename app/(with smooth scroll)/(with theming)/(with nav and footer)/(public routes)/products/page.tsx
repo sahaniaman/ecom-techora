@@ -1,12 +1,13 @@
 "use client";
 
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import ProductGridClient from "@/components/products/ProductGridClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -14,12 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, SlidersHorizontal, X } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { mockProducts } from "@/data/to-be-added-to-db";
 import type { Product } from "@/types/product";
 import { ProductCategory } from "@/types/product";
-import { ProductCard } from "@/components/cards/ProductCard";
-import { mockProducts } from "@/data/to-be-added-to-db";
-import ProductGridClient from "@/components/products/ProductGridClient";
 
 const categoryOptions = [
   { value: "all", label: "All Categories" },

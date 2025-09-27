@@ -1,11 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import ProductSlider from "@/components/sliders/ProductSlider";
 import { buttonVariants } from "@/components/ui/button";
 import SectionWrapper from "@/components/wrappers/SectionWrapper";
 import { mockProducts } from "@/data/to-be-added-to-db";
 import type { Product } from "@/types/product";
-import Link from "next/link";
 
 function NewProducts() {
   const handleAddToCart = (product: Product) => {
@@ -29,7 +29,12 @@ function NewProducts() {
           New Products
         </h3>{" "}
         <div className="h-0 border-y-[0.5px] border-accent w-full"></div>{" "}
-        <Link className={buttonVariants({variant: "default", size: "lg"})} href={"/products"}>View All</Link>
+        <Link
+          className={buttonVariants({ variant: "default", size: "lg" })}
+          href={"/products"}
+        >
+          View All
+        </Link>
       </div>
       <ProductSlider
         products={mockProducts}
