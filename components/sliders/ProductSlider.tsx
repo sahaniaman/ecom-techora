@@ -102,7 +102,7 @@ function ProductSlider({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-8xl mx-auto">
         <div className="relative">
           <Carousel
             setApi={setApi}

@@ -12,14 +12,14 @@ import { Button } from "../ui/button";
 interface BannerSliderProps {
   imageUrls: string[];
   interval?: number; // ms
-  height?: number | string; // default 560
+  height?: number | string; // default 560 - ab optional
   showDots?: boolean;
 }
 
 export default function BannerSlider({
   imageUrls = [],
   interval = 4000,
-  height = 560,
+  height, // ab optional - agar nahi diya gaya toh aspect-video ka use karega
   showDots = false,
 }: BannerSliderProps) {
   const [current, setCurrent] = useState(0);
@@ -80,8 +80,8 @@ export default function BannerSlider({
     return (
       <section
         aria-label="Promotional carousel"
-        className="w-full rounded-xl bg-muted flex items-center justify-center text-muted-foreground"
-        style={{ height }}
+        className={`w-full  rounded-xl bg-muted flex items-center justify-center text-muted-foreground ${height ? '' : 'aspect-video'}`}
+        style={height ? { height } : {}}
       >
         No banners
       </section>
@@ -92,30 +92,30 @@ export default function BannerSlider({
     <section
       role="region"
       aria-label="Promotional carousel"
-      tabIndex={0} // allowed on semantic element; linter happy
-      className="relative w-full overflow-hidden rounded-xl shadow-lg"
-      style={{ height }}
+      tabIndex={0}
+      className={`relative group w-full overflow-hidden rounded-xl shadow-lg border max-h-[560px] ${height ? '' : 'aspect-video'}`}
+      style={height ? { height } : {}}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocus={() => setIsPaused(true)}
       onBlur={() => setIsPaused(false)}
     >
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 ">
         <AnimatePresence initial={false} mode="wait">
           <motion.div
-            key={`slide-${current}-${imageUrls[current] ?? current}`} // stable unique key
-            className="absolute inset-0"
+            key={`slide-${current}-${imageUrls[current] ?? current}`}
+            className="absolute inset-0 "
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
           >
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full max-h-[560px]">
               <Image
                 src={imageUrls[current]}
                 alt={`Slide ${current + 1}`}
                 fill
-                sizes="(max-width: 1024px) 100vw, 1400px"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1400px"
                 className="object-cover"
                 priority={true}
               />
@@ -127,29 +127,29 @@ export default function BannerSlider({
       <Button
         aria-label="Previous slide"
         onClick={prev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
+        className="absolute duration-500 transition-all opacity-0 group-hover:opacity-100 left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 hover:bg-black/60 p-1 md:p-2 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
         style={{ backdropFilter: "blur(6px)" }}
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
       </Button>
 
       <Button
         aria-label="Next slide"
         onClick={next}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
+        className="absolute duration-500 transition-all opacity-0 group-hover:opacity-100 right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 hover:bg-black/60 p-1 md:p-2 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
         style={{ backdropFilter: "blur(6px)" }}
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
       </Button>
 
       {showDots && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+        <div className="absolute duration-500 transition-all opacity-0 group-hover:opacity-100 bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 z-20  gap-1 md:gap-2">
           {imageUrls.map((url, i) => (
             <Button
-              key={`${i}-${url}`} // use url + index for safety (unique & stable)
+              key={`${i}-${url}`}
               aria-label={`Go to slide ${i + 1}`}
               onClick={() => setCurrent(i)}
-              className={`h-2 w-8 rounded-full transition-all dark:hover:bg-muted ${current === i ? "bg-background" : "bg-background/40"}`}
+              className={`h-1.5 md:h-2 w-6 md:w-8 rounded-full transition-all dark:hover:bg-muted p-0 min-w-0 mr-2 ${current === i ? "bg-background" : "bg-background/40"}`}
             />
           ))}
         </div>

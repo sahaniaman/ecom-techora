@@ -18,13 +18,13 @@ function NewProducts() {
 
   return (
     <SectionWrapper
-      maxWidth="9xl"
-      padding="xl"
-      navbarSpacing="none"
+      maxWidth="8xl"
       background="transparent"
-      className="pointer-events-auto w-full flex items-center justify-center "
+      navbarSpacing="none"
+      padding="sm"
+      className="flex flex-col items-center justify-start pointer-events-auto w-full"
     >
-      <div className="flex w-full items-center justify-center gap-2 max-w-8xl">
+      <div className="flex w-full items-center justify-center gap-2 px-12">
         <h3 className="text-3xl min-w-max font-mono font-semibold">
           New Products
         </h3>{" "}
@@ -42,6 +42,7 @@ function NewProducts() {
         autoplayDuration={4000}
         onAddToCart={handleAddToCart}
         onToggleWishlist={handleToggleWishlist}
+        className="lg:px-5"
       />
     </SectionWrapper>
   );
