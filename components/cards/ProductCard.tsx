@@ -209,7 +209,7 @@ function ProductCardInner({
   return (
     <Card
       className={cn(
-        "group relative transition-all duration-500 hover:shadow-xl border-2 hover:border-primary/20 overflow-hidden",
+        "group relative transition-all duration-500 hover:shadow-xl border-2 hover:border-primary/20 overflow-hidden py-0.5",
         isOutOfStock && "opacity-70 grayscale",
         className,
       )}

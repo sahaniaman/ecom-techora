@@ -68,7 +68,7 @@
   --color-destructive-foreground: var(--destructive-foreground);
 
   /* Add these max-width extensions */
-  --max-width-8xl: 88rem; /* 1408px */
+  --max-width-8xl: 1400px; /* 1400px */
   --max-width-9xl: 96rem; /* 1536px */
   --max-width-10xl: 104rem; /* 1664px */
 
