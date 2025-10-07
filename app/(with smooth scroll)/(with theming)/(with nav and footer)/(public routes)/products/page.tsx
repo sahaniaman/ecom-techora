@@ -16,17 +16,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { mockProducts } from "@/data/to-be-added-to-db";
-import type { Product } from "@/types/product";
-import { ProductCategory } from "@/types/product";
+import type { Product, ProductCategory } from "@/types/product";
 
-const categoryOptions = [
-  { value: "all", label: "All Categories" },
-  { value: ProductCategory.MOBILE_ACCESSORIES, label: "Mobile Accessories" },
-  { value: ProductCategory.PREMIUM_PHONES, label: "Premium Phones" },
-  { value: ProductCategory.REFURBISHED_PHONES, label: "Refurbished Phones" },
-  { value: ProductCategory.GADGETS, label: "Gadgets" },
-];
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
+interface MongoProduct {
+  _id: string;
+  name: string;
+  description: string;
+  basePrice: number;
+  discountedPrice: number;
+  discount: number;
+  brand: string;
+  category: {
+    _id: string;
+    name: string;
+    slug?: string;
+  };
+  images: string[];
+  stock: number;
+  sku: string;
+  status: string;
+  rating: number;
+  tags?: string[];
+  features?: string[];
+  specifications?: Record<string, string>;
+  isFeatured?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
 
 const sortOptions = [
   { value: "relevance", label: "Relevance" },
@@ -37,16 +59,74 @@ const sortOptions = [
   { value: "newest", label: "Newest First" },
 ];
 
+// Helper function to map MongoDB product to Product type
+const mapMongoProduct = (mongoProduct: MongoProduct): Product => ({
+  id: mongoProduct._id,
+  name: mongoProduct.name,
+  description: mongoProduct.description,
+  basePrice: mongoProduct.basePrice,
+  discountedPrice: mongoProduct.discountedPrice,
+  discount: mongoProduct.discount,
+  category: (mongoProduct.category.slug || "") as ProductCategory,
+  subcategory: "",
+  images: mongoProduct.images,
+  stock: mongoProduct.stock,
+  sku: mongoProduct.sku,
+  lowStockThreshold: 5,
+  salesCount: 0,
+  reservedStock: 0,
+  variants: [],
+  brand: mongoProduct.brand,
+  features: mongoProduct.features || [],
+  specifications: mongoProduct.specifications || {},
+  tags: mongoProduct.tags || [],
+  status: mongoProduct.status as "ACTIVE" | "INACTIVE" | "OUT_OF_STOCK",
+  isFeatured: mongoProduct.isFeatured || false,
+  rating: mongoProduct.rating,
+  reviewCount: 0,
+  createdAt: new Date(mongoProduct.createdAt),
+  updatedAt: new Date(mongoProduct.updatedAt || mongoProduct.createdAt),
+});
+
 export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [products] = useState<Product[]>(mockProducts);
-  const [filteredProducts, setFilteredProducts] =
-    useState<Product[]>(mockProducts);
+  const [products, setProducts] = useState<MongoProduct[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [priceRange, setPriceRange] = useState([0, 200000]);
   const [sortBy, setSortBy] = useState("relevance");
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [loading, setLoading] = useState(true);
+
+  // Fetch products and categories from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch products
+        const productsRes = await fetch("/api/products");
+        if (productsRes.ok) {
+          const productsData = await productsRes.json();
+          setProducts(productsData.products || []);
+        }
+
+        // Fetch categories
+        const categoriesRes = await fetch("/api/admin/categories");
+        if (categoriesRes.ok) {
+          const categoriesData = await categoriesRes.json();
+          setCategories(categoriesData.categories || []);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   // Initialize price range based on products
   useEffect(() => {
     if (products.length > 0) {
@@ -56,6 +136,15 @@ export default function ProductsPage() {
       setPriceRange([minPrice, maxPrice]);
     }
   }, [products]);
+
+  // Create category options dynamically
+  const categoryOptions = [
+    { value: "all", label: "All Categories" },
+    ...categories.map((cat) => ({
+      value: cat._id,
+      label: cat.name,
+    })),
+  ];
 
   // Apply filters and sorting
   useEffect(() => {
@@ -69,14 +158,14 @@ export default function ProductsPage() {
           product.name.toLowerCase().includes(query) ||
           product.brand.toLowerCase().includes(query) ||
           product.description.toLowerCase().includes(query) ||
-          product.tags.some((tag) => tag.toLowerCase().includes(query)),
+          product.tags?.some((tag: string) => tag.toLowerCase().includes(query)),
       );
     }
 
     // Apply category filter
     if (categoryFilter !== "all") {
       filtered = filtered.filter(
-        (product) => product.category === categoryFilter,
+        (product) => product.category._id === categoryFilter,
       );
     }
 
@@ -107,7 +196,8 @@ export default function ProductsPage() {
       }
     });
 
-    setFilteredProducts(filtered);
+    // Map MongoDB products to Product type
+    setFilteredProducts(filtered.map(mapMongoProduct));
   }, [products, searchQuery, categoryFilter, priceRange, sortBy]);
 
   const clearAllFilters = () => {
@@ -127,6 +217,16 @@ export default function ProductsPage() {
     e.preventDefault();
     // Search is handled by the useEffect
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-muted-foreground">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

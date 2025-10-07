@@ -209,7 +209,7 @@ function ProductCardInner({
   return (
     <Card
       className={cn(
-        "group relative transition-all duration-500 hover:shadow-xl border-2 hover:border-primary/20 overflow-hidden py-0.5",
+        "group relative transition-all duration-500 hover:shadow-xl hover-lift border-2 hover:border-primary/20 overflow-hidden py-0.5 hover-scale backdrop-blur-sm",
         isOutOfStock && "opacity-70 grayscale",
         className,
       )}
@@ -220,7 +220,7 @@ function ProductCardInner({
         {/* Image Section */}
         <div
           className={cn(
-            "relative overflow-hidden rounded-lg bg-gradient-to-br from-muted/50 to-muted",
+            "relative overflow-hidden rounded-lg bg-gradient-to-br from-muted/50 to-muted shadow-soft",
             sizeConfig.image,
           )}
         >
@@ -252,23 +252,23 @@ function ProductCardInner({
             {isOutOfStock && (
               <Badge
                 variant="destructive"
-                className="text-xs px-3 py-1 backdrop-blur-sm"
+                className="text-xs px-3 py-1 glass-card animate-slide-down"
               >
                 Sold Out
               </Badge>
             )}
             {isLowStock && !isOutOfStock && (
-              <Badge className="bg-orange-500 text-white text-xs px-3 py-1 backdrop-blur-sm">
+              <Badge className="bg-orange-500 text-white text-xs px-3 py-1 glass-card animate-slide-down animate-delay-100">
                 Low Stock
               </Badge>
             )}
             {hasDiscount && (
-              <Badge className="bg-green-500 text-white text-xs px-3 py-1 backdrop-blur-sm">
+              <Badge className="bg-green-500 text-white text-xs px-3 py-1 glass-card animate-slide-down animate-delay-100">
                 {discountPercentage}% OFF
               </Badge>
             )}
             {product.isFeatured && (
-              <Badge className="bg-primary text-primary-foreground text-xs px-3 py-1 backdrop-blur-sm">
+              <Badge className="bg-primary text-primary-foreground text-xs px-3 py-1 glass-card animate-slide-down animate-delay-200">
                 Featured
               </Badge>
             )}
@@ -287,7 +287,7 @@ function ProductCardInner({
               <Button
                 variant="secondary"
                 size="icon"
-                className="w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background"
+                className="w-9 h-9 rounded-full glass-card hover:shadow-glow-primary hover-scale"
                 onClick={handleWishlist}
               >
                 <Heart
@@ -304,7 +304,7 @@ function ProductCardInner({
                 <Button
                   variant="secondary"
                   size="icon"
-                  className="w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background"
+                  className="w-9 h-9 rounded-full glass-card hover:shadow-glow-primary hover-scale"
                 >
                   <Eye className="w-4 h-4" />
                 </Button>
@@ -395,9 +395,9 @@ function ProductCardInner({
               onClick={handleAddToCart}
               disabled={isOutOfStock || isAddingToCart}
               className={cn(
-                "rounded-full transition-all duration-300 min-w-[48px]",
+                "rounded-full transition-all duration-300 min-w-[48px] hover-glow shadow-soft",
                 isAddedToCart
-                  ? "bg-green-500 hover:bg-green-600 scale-110"
+                  ? "bg-green-500 hover:bg-green-600 scale-110 shadow-glow-accent"
                   : "hover:scale-105 active:scale-95",
               )}
             >

@@ -11,7 +11,7 @@ export default function HomepageHeroSection() {
       padding="none"
       className="flex flex-col items-center justify-start pointer-events-auto w-full"
     >
-      <div className="flex w-full items-start justify-center relative pt-2 md:bt-6 md:pb-12 pb-8 md:px-6 lg:pt-12 lg:pb-20 lg:px-12 px-2 ">
+      <div className="flex w-full items-start justify-center relative pt-2 md:bt-6 md:pb-12 pb-8 md:px-6 lg:pt-12 lg:pb-20 lg:px-12 px-2 animate-fade-in">
         <BannerSlider
           imageUrls={ImageUrls}
           interval={4000}

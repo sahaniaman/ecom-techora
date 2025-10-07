@@ -77,13 +77,13 @@ const Navbar = async () => {
   return (
     <>
       {/* Top Bar - Always visible */}
-      <header className="sticky top-0 z-50 glass border-b border-border/50 bg-background/80 backdrop-blur-md font-serif">
+      <header className="sticky top-0 z-50 glass-card-strong border-b border-border/50 bg-background/80 backdrop-blur-xl font-serif transition-all duration-300 hover-lift">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo and search - simplified for mobile */}
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 gradient-primary rounded-xl flex items-center justify-center">
-                <Sparkles className="text-foreground w-4 h-4" />
+              <div className="w-8 h-8 gradient-primary rounded-xl flex items-center justify-center hover-scale shadow-glow-primary">
+                <Sparkles className="text-foreground w-4 h-4 animate-pulse-glow" />
               </div>
               <span className="text-xl font-mono font-semibold text-foreground">
                 TechOra
@@ -97,7 +97,7 @@ const Navbar = async () => {
                 <Input
                   type="text"
                   placeholder="Search premium products..."
-                  className="pl-12 pr-4 h-12 rounded-xl border-border/50 focus:border-primary/50 bg-background/50 backdrop-blur-sm w-full"
+                  className="pl-12 pr-4 h-12 rounded-xl border-border/50 focus:border-primary/50 bg-background/50 backdrop-blur-sm w-full focus-visible-ring transition-all duration-300 hover:shadow-soft"
                 />
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               </form>
@@ -171,7 +171,7 @@ const Navbar = async () => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <Link
-                            href="/admin"
+                            href="/superadmin"
                             className="flex items-center cursor-pointer"
                           >
                             <Settings className="w-4 h-4 mr-2" />

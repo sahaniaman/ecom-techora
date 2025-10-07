@@ -11,3 +11,5 @@ export async function getCurrentUser() {
   const user = await User.findOne({ clerkId: userId });
   return user ? user.toObject() : null;
 }
+
+

@@ -93,7 +93,7 @@ export default function BannerSlider({
       role="region"
       aria-label="Promotional carousel"
       tabIndex={0}
-      className={`relative group w-full overflow-hidden rounded-xl shadow-lg border max-h-[560px] ${height ? '' : 'aspect-video'}`}
+      className={`relative group w-full overflow-hidden rounded-xl shadow-soft-lg hover-lift border max-h-[560px] ${height ? '' : 'aspect-video'}`}
       style={height ? { height } : {}}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
@@ -127,8 +127,7 @@ export default function BannerSlider({
       <Button
         aria-label="Previous slide"
         onClick={prev}
-        className="absolute duration-500 transition-all opacity-0 group-hover:opacity-100 left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 hover:bg-black/60 p-1 md:p-2 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
-        style={{ backdropFilter: "blur(6px)" }}
+        className="absolute duration-500 transition-all opacity-0 group-hover:opacity-100 left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 rounded-full glass-card-strong hover:shadow-glow-primary hover-scale p-1 md:p-2 text-white focus-visible-ring"
       >
         <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
       </Button>
@@ -136,8 +135,7 @@ export default function BannerSlider({
       <Button
         aria-label="Next slide"
         onClick={next}
-        className="absolute duration-500 transition-all opacity-0 group-hover:opacity-100 right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 hover:bg-black/60 p-1 md:p-2 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
-        style={{ backdropFilter: "blur(6px)" }}
+        className="absolute duration-500 transition-all opacity-0 group-hover:opacity-100 right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 rounded-full glass-card-strong hover:shadow-glow-primary hover-scale p-1 md:p-2 text-white focus-visible-ring"
       >
         <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
       </Button>
@@ -149,7 +147,7 @@ export default function BannerSlider({
               key={`${i}-${url}`}
               aria-label={`Go to slide ${i + 1}`}
               onClick={() => setCurrent(i)}
-              className={`h-1.5 md:h-2 w-6 md:w-8 rounded-full transition-all dark:hover:bg-muted p-0 min-w-0 mr-2 ${current === i ? "bg-background" : "bg-background/40"}`}
+              className={`h-1.5 md:h-2 w-6 md:w-8 rounded-full transition-all hover-scale p-0 min-w-0 mr-2 ${current === i ? "bg-background shadow-glow-primary" : "bg-background/40 hover:bg-background/60"}`}
             />
           ))}
         </div>
