@@ -13,41 +13,35 @@ export default async function getAllUsers() {
         
         if (!RequestUser) {
             console.log("❌ No user found");
-            return [];
+            throw new Error("Authentication required: No user found in session");
         }
         
         if (RequestUser.role !== "SUPER_ADMIN") {
             console.log("❌ User is not SUPER_ADMIN, role:", RequestUser.role);
-            return [];
+            throw new Error(`Authorization failed: User role is ${RequestUser.role}, but SUPER_ADMIN required`);
         }
 
         console.log("🔍 Connecting to database...");
         await dbConnect();
 
-        // Sirf wishlist populate karein, orderHistory nahi
+        // Sirf essential fields fetch karein
         const users = await User.find({})
-            .select('-__v -paymentMethods -cart')
-            .populate('wishlist', 'name price images') // Product model ab exist karta hai
+            .select('_id clerkId email phone role profile.firstName profile.lastName')
             .lean();
 
         console.log("✅ Users found:", users.length);
 
-        // Transform to safe format
+        // Transform to safe format - sirf essential data
         const safeUsers = users.map(user => ({
-            id: user._id?.toString(),
-            clerkId: user.clerkId,
-            email: user.email,
-            phone: user.phone,
-            role: user.role,
-            status: user.status,
-            profile: user.profile || {},
-            addresses: user.addresses || [],
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            lastLoginAt: user.lastLoginAt,
-            lastActiveAt: user.lastActiveAt,
-            emailVerified: user.emailVerified,
-            phoneVerified: user.phoneVerified,
+            id: user._id?.toString() || '',
+            clerkId: user.clerkId || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            role: user.role || 'USER',
+            profile: {
+                firstName: user.profile?.firstName || '',
+                lastName: user.profile?.lastName || ''
+            }
         }));
 
         return safeUsers;
