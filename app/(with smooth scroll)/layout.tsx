@@ -3,6 +3,7 @@ import { ReactLenis } from "lenis/react";
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import "../globals.css";
+import "@/models"; // Ensure models are registered
 
 export const metadata: Metadata = {
   title: "Create Next App",

@@ -1,3 +1,5 @@
+// @/models/User.ts
+
 import type { Document } from "mongoose";
 import mongoose, { Schema } from "mongoose";
 import type { Address } from "@/types/Address";
