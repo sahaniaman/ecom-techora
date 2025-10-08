@@ -5,15 +5,16 @@ import { Users, ShieldCheck, Store } from "lucide-react"
 import type { UserRole } from "@/types/User"
 
 interface PageProps {
-    searchParams: {
+    searchParams: Promise<{
         role?: string
-    }
+    }>
 }
 
 const page = async ({ searchParams }: PageProps) => {
     try {
         const allUsers = await getAllUsers()
-        const roleFilter = searchParams.role as UserRole | undefined
+        const { role } = await searchParams
+        const roleFilter = role as UserRole | undefined
         
         // Filter users based on role query parameter
         let filteredUsers = allUsers
