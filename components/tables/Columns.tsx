@@ -14,6 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { UserRole } from "@/types/User"
+import Image from "next/image"
+import { cn } from "@/lib/utils"
+import { useClerkDataOnClient } from "@/hooks/useClerkDataOnClient"
 
 // Simplified User type - sirf essential fields
 export interface SimpleUser {
@@ -25,7 +28,63 @@ export interface SimpleUser {
   profile: {
     firstName: string
     lastName: string
+    avatar: string
   }
+}
+
+// Avatar component with proper loading state
+const UserAvatar = ({ user }: { user: SimpleUser }) => {
+  const { userData, loading } = useClerkDataOnClient({ clerkId: user.clerkId })
+  const fullName = `${user.profile.firstName} ${user.profile.lastName}`.trim()
+  
+  // Avatar URL determine karna with proper fallbacks
+  const avatarUrl = user.profile.avatar || userData?.imageUrl || null
+  
+  // Agar data load ho raha hai to skeleton display karo
+  if (loading) {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
+        <div className="flex flex-col gap-1">
+          <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
+          <div className="h-3 w-16 bg-gray-200 animate-pulse rounded" />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="h-10 w-10 rounded-full bg-gradient-to-br relative from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium overflow-hidden">
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={fullName || "User Avatar"}
+            fill
+            className={cn("object-cover object-center")}
+            onError={(e) => {
+              // Agar image load nahi hoti to fallback display
+              const target = e.target as HTMLImageElement
+              target.style.display = 'none'
+            }}
+          />
+        ) : (
+          <span className="text-sm">
+            {user.profile.firstName?.[0]?.toUpperCase() || '?'}
+            {user.profile.lastName?.[0]?.toUpperCase() || ''}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col">
+        <div className="font-semibold text-gray-900 dark:text-gray-100">
+          {fullName || "Unknown User"}
+        </div>
+        <div className="text-xs text-gray-500">
+          ID: {user.id.slice(-8)}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export const columns: ColumnDef<SimpleUser>[] = [
@@ -55,25 +114,7 @@ export const columns: ColumnDef<SimpleUser>[] = [
     header: "Name",
     cell: ({ row }) => {
       const user = row.original
-      const fullName = `${user.profile.firstName} ${user.profile.lastName}`.trim()
-      
-      return (
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
-            <span className="text-sm">
-              {user.profile.firstName?.[0] || '?'}{user.profile.lastName?.[0] || ''}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <div className="font-semibold text-gray-900 dark:text-gray-100">
-              {fullName || "Unknown User"}
-            </div>
-            <div className="text-xs text-gray-500">
-              ID: {user.id.slice(-8)}
-            </div>
-          </div>
-        </div>
-      )
+      return <UserAvatar user={user} />
     },
   },
   {

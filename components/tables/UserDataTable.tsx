@@ -77,7 +77,7 @@ export default function UserDataTable({ data }: UserDataTableProps) {
   const regularUsers = data.filter(u => u.role === "USER").length
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 pointer-events-auto">
       {/* Header Stats */}
       <div className="grid gap-4 md:grid-cols-5">
         <div className="p-4 border rounded-lg bg-card">

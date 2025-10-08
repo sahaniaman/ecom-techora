@@ -1,7 +1,7 @@
-import getAllUsers from "@/data/users/superadmin/getAllUsers"
+import { ShieldCheck, Store, Users } from "lucide-react"
 import UserDataTable from "@/components/tables/UserDataTable"
 import SectionWrapper from "@/components/wrappers/SectionWrapper"
-import { Users, ShieldCheck, Store } from "lucide-react"
+import getAllUsers from "@/data/users/superadmin/getAllUsers"
 import type { UserRole } from "@/types/User"
 
 interface PageProps {
