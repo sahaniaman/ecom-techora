@@ -15,7 +15,7 @@ export interface IProduct extends Document {
   description: string;
   basePrice: number;
   discountedPrice: number;
-  discount: number;
+  discount: number; // isko chhod kar aage ka form banao
   brand: string;
   category: Types.ObjectId; // Reference to Category model
   subcategory?: Types.ObjectId; // Reference to Subcategory model
@@ -25,7 +25,7 @@ export interface IProduct extends Document {
   lowStockThreshold: number;
   salesCount: number;
   reservedStock: number;
-  variants: IVariant[];
+  // variants: IVariant[];
   features: string[];
   specifications: Record<string, string>;
   tags: string[];
@@ -221,7 +221,7 @@ const productSchema = new Schema<IProduct>(
       min: 0,
       default: 0,
     },
-    variants: [variantSchema],
+    // variants: [variantSchema],
     features: [
       {
         type: String,

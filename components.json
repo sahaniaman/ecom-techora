@@ -16,7 +16,8 @@
     "utils": "@/lib/utils",
     "ui": "@/components/ui",
     "lib": "@/lib",
-    "hooks": "@/hooks"
+    "hooks": "@/hooks",
+    "extension": "@/components/ui/extension"
   },
   "registries": {
     "@skiper-ui": "https://skiper-ui.com//registry/{name}.json"

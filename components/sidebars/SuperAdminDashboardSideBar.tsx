@@ -97,10 +97,10 @@ const sections: SIDEBAR_SECTION[] = [
         items: [
           {
             label: "All Products",
-            url: "/superadmin/management/products/view",
+            url: "/superadmin/management/products",
           },
           {
-            label: "Add Products",
+            label: "Add Product",
             url: "/superadmin/management/products/add",
           },
         ],
