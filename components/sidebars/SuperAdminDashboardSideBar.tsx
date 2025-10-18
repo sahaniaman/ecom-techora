@@ -14,6 +14,7 @@ import {
   Users2,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   Sidebar,
@@ -27,6 +28,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { ThemeToggleButton } from "../ui/skiper-ui/skiper26";
+import { cn } from "@/lib/utils";
 
 interface SIDEBAR_ITEM {
   label: string;
@@ -110,7 +113,8 @@ const sections: SIDEBAR_SECTION[] = [
 ];
 
 const SuperAdminDashboardSideBar = () => {
-  const {state} = useSidebar()
+  const { state } = useSidebar();
+  const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState<Set<string>>(
     new Set(["Sections", "Management"]),
   );
@@ -130,10 +134,79 @@ const SuperAdminDashboardSideBar = () => {
   const isGroupOpen = (groupLabel: string) => openGroups.has(groupLabel);
   const isCollapsed = state === "collapsed";
 
+  // Check if a URL is active
+  const isActiveLink = (url?: string): boolean => {
+    if (!url) return false;
+    
+    // Exact match for root paths
+    if (url === "/superadmin" && pathname === "/superadmin") return true;
+    
+    // For paths with query parameters, check only the pathname
+    const cleanUrl = url.split('?')[0];
+    const cleanPathname = pathname.split('?')[0];
+    
+    // Check if current pathname starts with the URL (for nested routes)
+    return cleanPathname === cleanUrl || cleanPathname.startsWith(`${cleanUrl}/`);
+  };
+
+  // Check if any child item is active (for auto-expanding groups)
+  const hasActiveChild = (items?: SIDEBAR_ITEM[]): boolean => {
+    if (!items) return false;
+    
+    return items.some(item => {
+      if (item.url && isActiveLink(item.url)) return true;
+      if (item.items) return hasActiveChild(item.items);
+      return false;
+    });
+  };
+
+  // Auto-expand groups that contain active items
+  const autoExpandGroups = () => {
+    sections.forEach(section => {
+      if (section.items && hasActiveChild(section.items)) {
+        setOpenGroups(prev => new Set(prev).add(section.label));
+      }
+      
+      section.items?.forEach(item => {
+        if (item.items && hasActiveChild(item.items)) {
+          setOpenGroups(prev => new Set(prev).add(`${section.label}-${item.label}`));
+        }
+      });
+    });
+  };
+
+  // Run auto-expand on mount and when pathname changes
+  useState(() => {
+    autoExpandGroups();
+  });
+
+  const getButtonClasses = (isActive: boolean, level: number = 0) => {
+    const baseClasses = "transition-all duration-300 ease-in-out active:scale-[0.98] my-1";
+    
+    if (isActive) {
+      return cn(
+        baseClasses,
+        "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/25",
+        level === 0 ? "rounded-xl" : "rounded-lg",
+        "hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg hover:shadow-blue-600/30"
+      );
+    }
+    
+    return cn(
+      baseClasses,
+      "hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700",
+      level === 0 ? "rounded-xl hover:shadow-sm" : "rounded-lg hover:translate-x-1",
+      level > 1 && "hover:bg-gradient-to-r hover:from-blue-50/80 hover:to-indigo-50/80"
+    );
+  };
+
   return (
     <Sidebar className="border-r border-gray-200" collapsible="icon">
       <SidebarContent className="px-2 py-4">
         {sections.map((section) => {
+          const isSectionActive = isActiveLink(section.url);
+          const sectionHasActiveChild = hasActiveChild(section.items);
+
           // If section has a direct URL, render as simple button
           if (section.url) {
             return (
@@ -141,14 +214,26 @@ const SuperAdminDashboardSideBar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    className="text-base font-medium hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 rounded-xl transition-all duration-300 ease-in-out hover:shadow-sm active:scale-[0.98] my-1"
+                    className={getButtonClasses(isSectionActive, 0)}
                   >
                     <Link
                       href={section.url}
                       className="flex items-center gap-3 py-3 px-3"
                     >
-                      {section.icon && <section.icon className="w-5 h-5 flex-shrink-0" />}
-                      <span className="truncate">{section.label}</span>
+                      {section.icon && (
+                        <section.icon 
+                          className={cn(
+                            "w-5 h-5 flex-shrink-0 transition-colors",
+                            isSectionActive ? "text-white" : "text-gray-600"
+                          )} 
+                        />
+                      )}
+                      <span className={cn(
+                        "truncate font-medium transition-colors",
+                        isSectionActive ? "text-white" : "text-gray-900"
+                      )}>
+                        {section.label}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -161,7 +246,7 @@ const SuperAdminDashboardSideBar = () => {
             section.items &&
             section.items.some((item) => item.url && !item.items)
           ) {
-            const isOpen = isGroupOpen(section.label);
+            const isOpen = isGroupOpen(section.label) || sectionHasActiveChild;
 
             return (
               <SidebarGroup
@@ -171,14 +256,26 @@ const SuperAdminDashboardSideBar = () => {
                 <button
                   type="button"
                   onClick={() => toggleGroup(section.label)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 hover:bg-gray-50 rounded-xl transition-all duration-300 ease-in-out group ${isCollapsed ? 'justify-center' : ''}`}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-300 ease-in-out group",
+                    isCollapsed ? 'justify-center' : '',
+                    sectionHasActiveChild 
+                      ? "bg-blue-50 border border-blue-200" 
+                      : "hover:bg-gray-50"
+                  )}
                 >
-                  <div className={`flex items-center gap-3 ${isCollapsed ? '' : 'flex-1'}`}>
+                  <div className={cn("flex items-center gap-3", isCollapsed ? '' : 'flex-1')}>
                     {section.icon && (
-                      <section.icon className="w-4 h-4 flex-shrink-0 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                      <section.icon className={cn(
+                        "w-4 h-4 flex-shrink-0 transition-colors",
+                        sectionHasActiveChild ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+                      )} />
                     )}
                     {!isCollapsed && (
-                      <SidebarGroupLabel className="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-gray-800 transition-colors">
+                      <SidebarGroupLabel className={cn(
+                        "text-xs font-bold uppercase tracking-wider transition-colors",
+                        sectionHasActiveChild ? "text-blue-700" : "text-gray-600 group-hover:text-gray-800"
+                      )}>
                         {section.label}
                       </SidebarGroupLabel>
                     )}
@@ -186,9 +283,15 @@ const SuperAdminDashboardSideBar = () => {
                   {!isCollapsed && (
                     <div className="flex-shrink-0 ml-2">
                       {isOpen ? (
-                        <ChevronUp className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-all duration-300" />
+                        <ChevronUp className={cn(
+                          "w-4 h-4 transition-all duration-300",
+                          sectionHasActiveChild ? "text-blue-500" : "text-gray-400 group-hover:text-gray-600"
+                        )} />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-all duration-300" />
+                        <ChevronDown className={cn(
+                          "w-4 h-4 transition-all duration-300",
+                          sectionHasActiveChild ? "text-blue-500" : "text-gray-400 group-hover:text-gray-600"
+                        )} />
                       )}
                     </div>
                   )}
@@ -197,22 +300,36 @@ const SuperAdminDashboardSideBar = () => {
                 {isOpen && !isCollapsed && (
                   <SidebarGroupContent className="mt-1">
                     <SidebarMenu>
-                      {section.items.map((item) => (
-                        <SidebarMenuItem key={item.label}>
-                          <SidebarMenuButton
-                            asChild
-                            className="text-sm hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-lg transition-all duration-300 ease-in-out hover:translate-x-1 active:scale-[0.98] my-0.5"
-                          >
-                            <Link
-                              href={item.url || "#"}
-                              className="flex items-center gap-3 py-2.5 pl-8 pr-3"
+                      {section.items.map((item) => {
+                        const isItemActive = isActiveLink(item.url);
+                        
+                        return (
+                          <SidebarMenuItem key={item.label}>
+                            <SidebarMenuButton
+                              asChild
+                              className={getButtonClasses(isItemActive, 1)}
                             >
-                              {item.icon && <item.icon className="w-4 h-4 flex-shrink-0 text-gray-500" />}
-                              <span className="text-gray-700 truncate">{item.label}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
+                              <Link
+                                href={item.url || "#"}
+                                className="flex items-center gap-3 py-2.5 pl-8 pr-3"
+                              >
+                                {item.icon && (
+                                  <item.icon className={cn(
+                                    "w-4 h-4 flex-shrink-0 transition-colors",
+                                    isItemActive ? "text-white" : "text-gray-500"
+                                  )} />
+                                )}
+                                <span className={cn(
+                                  "truncate transition-colors",
+                                  isItemActive ? "text-white font-medium" : "text-gray-700"
+                                )}>
+                                  {item.label}
+                                </span>
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        );
+                      })}
                     </SidebarMenu>
                   </SidebarGroupContent>
                 )}
@@ -221,7 +338,7 @@ const SuperAdminDashboardSideBar = () => {
           }
 
           // If section has nested items (multi-level), render as collapsible
-          const isOpen = isGroupOpen(section.label);
+          const isOpen = isGroupOpen(section.label) || sectionHasActiveChild;
 
           return (
             <SidebarGroup
@@ -231,14 +348,26 @@ const SuperAdminDashboardSideBar = () => {
               <button
                 type="button"
                 onClick={() => toggleGroup(section.label)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 hover:bg-gray-50 rounded-xl transition-all duration-300 ease-in-out group ${isCollapsed ? 'justify-center' : ''}`}
+                className={cn(
+                  "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-300 ease-in-out group",
+                  isCollapsed ? 'justify-center' : '',
+                  sectionHasActiveChild 
+                    ? "bg-blue-50 border border-blue-200" 
+                    : "hover:bg-gray-50"
+                )}
               >
-                <div className={`flex items-center gap-3 ${isCollapsed ? '' : 'flex-1'}`}>
+                <div className={cn("flex items-center gap-3", isCollapsed ? '' : 'flex-1')}>
                   {section.icon && (
-                    <section.icon className="w-4 h-4 flex-shrink-0 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                    <section.icon className={cn(
+                      "w-4 h-4 flex-shrink-0 transition-colors",
+                      sectionHasActiveChild ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+                    )} />
                   )}
                   {!isCollapsed && (
-                    <SidebarGroupLabel className="text-xs font-bold text-gray-600 uppercase tracking-wider group-hover:text-gray-800 transition-colors">
+                    <SidebarGroupLabel className={cn(
+                      "text-xs font-bold uppercase tracking-wider transition-colors",
+                      sectionHasActiveChild ? "text-blue-700" : "text-gray-600 group-hover:text-gray-800"
+                    )}>
                       {section.label}
                     </SidebarGroupLabel>
                   )}
@@ -246,9 +375,15 @@ const SuperAdminDashboardSideBar = () => {
                 {!isCollapsed && (
                   <div className="flex-shrink-0 ml-2">
                     {isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-all duration-300" />
+                      <ChevronUp className={cn(
+                        "w-4 h-4 transition-all duration-300",
+                        sectionHasActiveChild ? "text-blue-500" : "text-gray-400 group-hover:text-gray-600"
+                      )} />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-all duration-300" />
+                      <ChevronDown className={cn(
+                        "w-4 h-4 transition-all duration-300",
+                        sectionHasActiveChild ? "text-blue-500" : "text-gray-400 group-hover:text-gray-600"
+                      )} />
                     )}
                   </div>
                 )}
@@ -257,33 +392,47 @@ const SuperAdminDashboardSideBar = () => {
               {isOpen && !isCollapsed && (
                 <SidebarGroupContent className="mt-1">
                   {section.items?.map((item) => {
-                    const isSubGroupOpen = isGroupOpen(
-                      `${section.label}-${item.label}`,
-                    );
+                    const itemHasActiveChild = hasActiveChild(item.items);
+                    const isSubGroupOpen = isGroupOpen(`${section.label}-${item.label}`) || itemHasActiveChild;
 
                     return (
                       <SidebarGroup key={item.label} className="ml-2">
                         <button
                           type="button"
-                          onClick={() =>
-                            toggleGroup(`${section.label}-${item.label}`)
-                          }
-                          className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 rounded-lg transition-all duration-300 ease-in-out group"
+                          onClick={() => toggleGroup(`${section.label}-${item.label}`)}
+                          className={cn(
+                            "w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-300 ease-in-out group",
+                            itemHasActiveChild 
+                              ? "bg-blue-50/80 border border-blue-200/50" 
+                              : "hover:bg-gray-50"
+                          )}
                         >
                           <div className="flex items-center gap-2.5 flex-1 min-w-0">
                             {item.icon && (
-                              <item.icon className="w-4 h-4 flex-shrink-0 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                              <item.icon className={cn(
+                                "w-4 h-4 flex-shrink-0 transition-colors",
+                                itemHasActiveChild ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+                              )} />
                             )}
-                            <SidebarGroupLabel className="text-sm font-semibold text-gray-600 group-hover:text-gray-800 transition-colors truncate">
+                            <SidebarGroupLabel className={cn(
+                              "text-sm font-semibold transition-colors truncate",
+                              itemHasActiveChild ? "text-blue-700" : "text-gray-600 group-hover:text-gray-800"
+                            )}>
                               {item.label}
                             </SidebarGroupLabel>
                           </div>
                           {item.items && item.items.length > 0 && (
                             <div className="flex-shrink-0 ml-2">
                               {isSubGroupOpen ? (
-                                <ChevronUp className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600 transition-all duration-300" />
+                                <ChevronUp className={cn(
+                                  "w-3.5 h-3.5 transition-all duration-300",
+                                  itemHasActiveChild ? "text-blue-500" : "text-gray-400 group-hover:text-gray-600"
+                                )} />
                               ) : (
-                                <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600 transition-all duration-300" />
+                                <ChevronDown className={cn(
+                                  "w-3.5 h-3.5 transition-all duration-300",
+                                  itemHasActiveChild ? "text-blue-500" : "text-gray-400 group-hover:text-gray-600"
+                                )} />
                               )}
                             </div>
                           )}
@@ -292,23 +441,30 @@ const SuperAdminDashboardSideBar = () => {
                         {isSubGroupOpen && item.items && (
                           <SidebarGroupContent className="mt-1">
                             <SidebarMenu>
-                              {item.items.map((subItem) => (
-                                <SidebarMenuItem key={subItem.label}>
-                                  <SidebarMenuButton
-                                    asChild
-                                    className="text-sm hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 rounded-lg transition-all duration-300 ease-in-out hover:translate-x-1 active:scale-[0.98] my-0.5"
-                                  >
-                                    <Link
-                                      href={subItem.url || "#"}
-                                      className="flex items-center gap-3 py-2.5 pl-10 pr-3"
+                              {item.items.map((subItem) => {
+                                const isSubItemActive = isActiveLink(subItem.url);
+                                
+                                return (
+                                  <SidebarMenuItem key={subItem.label}>
+                                    <SidebarMenuButton
+                                      asChild
+                                      className={getButtonClasses(isSubItemActive, 2)}
                                     >
-                                      <span className="text-gray-700 hover:text-blue-700 transition-colors truncate">
-                                        {subItem.label}
-                                      </span>
-                                    </Link>
-                                  </SidebarMenuButton>
-                                </SidebarMenuItem>
-                              ))}
+                                      <Link
+                                        href={subItem.url || "#"}
+                                        className="flex items-center gap-3 py-2.5 pl-10 pr-3"
+                                      >
+                                        <span className={cn(
+                                          "truncate transition-colors",
+                                          isSubItemActive ? "text-white font-medium" : "text-gray-700 hover:text-blue-700"
+                                        )}>
+                                          {subItem.label}
+                                        </span>
+                                      </Link>
+                                    </SidebarMenuButton>
+                                  </SidebarMenuItem>
+                                );
+                              })}
                             </SidebarMenu>
                           </SidebarGroupContent>
                         )}
@@ -321,29 +477,35 @@ const SuperAdminDashboardSideBar = () => {
           );
         })}
       </SidebarContent>
-      <SidebarFooter className={`p-4 border-t border-gray-200 bg-gradient-to-b from-transparent to-gray-50/30 ${isCollapsed ? 'flex items-center justify-center' : ''}`}>
-        <div className={`${isCollapsed ? 'flex justify-center' : 'w-full flex justify-center'}`}>
+      <SidebarFooter className={cn("p-4 border-t border-gray-200 bg-gradient-to-b from-transparent to-gray-50/30", isCollapsed ? 'flex items-center justify-center' : '')}>
+        <div className={cn(isCollapsed ? 'flex justify-center' : 'w-full flex justify-center')}>
           <UserButton
-        showName={!isCollapsed}
-        userProfileMode="modal"
-        appearance={{
-          elements: {
-        rootBox: "w-full flex items-center justify-center",
-        userButtonBox: isCollapsed 
-          ? "flex items-center justify-center" 
-          : "w-full flex items-center justify-center gap-4",
-        userButtonOuterIdentifier: isCollapsed 
-          ? "text-base font-medium text-gray-700 truncate"
-          : "text-lg font-medium text-gray-700 truncate",
-        userButtonTrigger: isCollapsed
-          ? "p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all duration-300 ease-in-out hover:shadow-md active:scale-95"
-          : "w-full p-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all duration-300 ease-in-out hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-4",
-        userButtonAvatarBox: isCollapsed 
-          ? "w-11 h-11 flex-shrink-0 ring-2 ring-gray-200 ring-offset-2"
-          : "w-14 h-14 flex-shrink-0 ring-2 ring-gray-200 ring-offset-2",
-          },
-        }}
+            showName={!isCollapsed}
+            userProfileMode="modal"
+            appearance={{
+              elements: {
+                rootBox: "w-full flex items-center justify-center",
+                userButtonBox: isCollapsed 
+                  ? "flex items-center justify-center" 
+                  : "w-full flex items-center justify-center gap-4",
+                userButtonOuterIdentifier: isCollapsed 
+                  ? "text-base font-medium text-gray-700 truncate"
+                  : "text-lg font-medium text-gray-700 truncate",
+                userButtonTrigger: isCollapsed
+                  ? "p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all duration-300 ease-in-out hover:shadow-md active:scale-95"
+                  : "w-full p-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-xl transition-all duration-300 ease-in-out hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-4",
+                userButtonAvatarBox: isCollapsed 
+                  ? "w-11 h-11 flex-shrink-0 ring-2 ring-gray-200 ring-offset-2"
+                  : "w-14 h-14 flex-shrink-0 ring-2 ring-gray-200 ring-offset-2",
+              }
+            }}
           />
+            <ThemeToggleButton
+              className="size-7 mx-2 pointer-events-auto "
+              variant="circle"
+              start="top-center"
+              blur={true}
+            />
         </div>
       </SidebarFooter>
     </Sidebar>

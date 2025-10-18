@@ -1,3 +1,4 @@
+import { IProduct } from "@/models/Products";
 import type { Address } from "./Address";
 
 export enum ProductCategory {
@@ -17,15 +18,15 @@ export interface ProductVariant {
   images: string[];
 }
 
-export interface Product {
+export interface Product extends IProduct {
   id: string;
   name: string;
   description: string;
   basePrice: number;
   discountedPrice: number;
   discount: number;
-  category: ProductCategory;
-  subcategory?: string;
+  // category: ProductCategory;
+  // subcategory?: string;
   images: string[];
 
   // Stock management

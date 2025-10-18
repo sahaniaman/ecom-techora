@@ -16,8 +16,12 @@ import React, { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useCart } from "@/hooks/use-cart";
+import { useWishlist } from "@/hooks/use-wishlist";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
+import { formatPrice } from "@/lib/formatPrice";
+
 
 interface ProductCardProps {
   product: Product;
@@ -32,9 +36,9 @@ interface ProductCardProps {
 function ProductCardInner({
   product,
   className = "",
-  onAddToCart,
-  onToggleWishlist,
-  isWishlisted = false,
+  onAddToCart: externalAddToCart,
+  onToggleWishlist: externalToggleWishlist,
+  isWishlisted: externalIsWishlisted,
   showFeatures = true,
   size = "md",
 }: ProductCardProps) {
@@ -42,6 +46,17 @@ function ProductCardInner({
   const [isHovered, setIsHovered] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
+  
+  // Use the wishlist hook
+  const { isInWishlist, toggleWishlist, isLoading: isWishlistLoading } = useWishlist();
+  // Use the cart hook
+  const { addToCart, isLoading: isCartLoading } = useCart();
+  
+
+  // Determine wishlist state
+  const isWishlisted = externalIsWishlisted !== undefined 
+    ? externalIsWishlisted 
+    : isInWishlist(product._id as string);
 
   // Memoized calculations
   const {
@@ -102,21 +117,38 @@ function ProductCardInner({
 
     setIsAddingToCart(true);
     try {
-      await new Promise((r) => setTimeout(r, 500));
-      onAddToCart?.(product);
+      // If external handler is provided, use it
+      if (externalAddToCart) {
+        await externalAddToCart(product);
+      } else {
+        // Otherwise use the cart hook
+        await addToCart(product._id as string, 1);
+      }
+      
       setIsAddedToCart(true);
       setTimeout(() => setIsAddedToCart(false), 2000);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
     } finally {
       setIsAddingToCart(false);
     }
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onToggleWishlist?.(product);
+
+    // If external handler is provided, use it
+    if (externalToggleWishlist) {
+      externalToggleWishlist(product);
+      return;
+    }
+
+    // Otherwise use the hook
+    await toggleWishlist(product);
   };
 
+  // Render stars function
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
@@ -133,57 +165,57 @@ function ProductCardInner({
     ));
   };
 
-  const priceDisplay = useMemo(
-    () => (
-      <div className="flex flex-col gap-1">
-        <div className="flex items-baseline gap-2">
-          {hasDiscount ? (
-            <>
-              <span
-                className={cn(
-                  "font-bold text-green-600 flex items-center",
-                  sizeConfig.price,
-                )}
-              >
-                <IndianRupee className="size-4 mr-0.5" />
-                {product.discountedPrice?.toLocaleString()}
-              </span>
-              <span className="text-sm line-through text-muted-foreground flex items-center">
-                <IndianRupee className="size-3" />
-                {product.basePrice.toLocaleString()}
-              </span>
-            </>
-          ) : (
+
+
+const priceDisplay = useMemo(
+  () => (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-baseline gap-2">
+        {hasDiscount ? (
+          <>
             <span
               className={cn(
-                "font-bold text-foreground flex items-center",
+                "font-bold text-green-600 flex items-center",
                 sizeConfig.price,
               )}
             >
               <IndianRupee className="size-4 mr-0.5" />
-              {product.basePrice.toLocaleString()}
+              {formatPrice(product.discountedPrice)}
             </span>
-          )}
-        </div>
-        {hasDiscount && (
-          <Badge
-            variant="secondary"
-            className="w-fit bg-green-100 text-green-700 text-xs"
+            <span className="text-sm line-through text-muted-foreground flex items-center">
+              <IndianRupee className="size-3" />
+              {formatPrice(product.basePrice)}
+            </span>
+          </>
+        ) : (
+          <span
+            className={cn(
+              "font-bold text-foreground flex items-center",
+              sizeConfig.price,
+            )}
           >
-            {discountPercentage}% OFF
-          </Badge>
+            <IndianRupee className="size-4 mr-0.5" />
+            {formatPrice(product.basePrice)}
+          </span>
         )}
       </div>
-    ),
-    [
-      product.basePrice,
-      product.discountedPrice,
-      hasDiscount,
-      discountPercentage,
-      sizeConfig.price,
-    ],
-  );
-
+      {hasDiscount && (
+        <Badge
+          className="w-fit !bg-green-100 !text-green-700 text-xs"
+        >
+          {discountPercentage}% OFF
+        </Badge>
+      )}
+    </div>
+  ),
+  [
+    product.basePrice,
+    product.discountedPrice,
+    hasDiscount,
+    discountPercentage,
+    sizeConfig.price,
+  ],
+);
   const stockStatus = useMemo(() => {
     if (isOutOfStock) {
       return {
@@ -258,12 +290,12 @@ function ProductCardInner({
               </Badge>
             )}
             {isLowStock && !isOutOfStock && (
-              <Badge className="bg-orange-500 text-white text-xs px-3 py-1 glass-card animate-slide-down animate-delay-100">
+              <Badge className="bg-orange-500 text-xs px-3 py-1 glass-card animate-slide-down animate-delay-100">
                 Low Stock
               </Badge>
             )}
             {hasDiscount && (
-              <Badge className="bg-green-500 text-white text-xs px-3 py-1 glass-card animate-slide-down animate-delay-100">
+              <Badge className="!bg-green-500 text-green-50 text-xs px-3 py-1 glass-card animate-slide-down animate-delay-100">
                 {discountPercentage}% OFF
               </Badge>
             )}
@@ -287,26 +319,34 @@ function ProductCardInner({
               <Button
                 variant="secondary"
                 size="icon"
-                className="w-9 h-9 rounded-full glass-card hover:shadow-glow-primary hover-scale"
+                className={cn(
+                  "w-9 h-9 rounded-full glass-card hover:shadow-glow-primary hover-scale transition-all duration-300",
+                  isWishlistLoading && "opacity-50 cursor-not-allowed"
+                )}
                 onClick={handleWishlist}
+                disabled={isWishlistLoading}
               >
-                <Heart
-                  className={cn(
-                    "w-4 h-4 transition-colors",
-                    isWishlisted
-                      ? "fill-red-500 text-red-500"
-                      : "text-muted-foreground",
-                  )}
-                />
+                {isWishlistLoading ? (
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Heart
+                    className={cn(
+                      "w-4 h-4 transition-all duration-300",
+                      isWishlisted
+                        ? "fill-red-500 text-red-500 scale-110"
+                        : "text-muted-foreground hover:text-red-500",
+                    )}
+                  />
+                )}
               </Button>
 
-              <Link href={`/product/${product.id}`} prefetch={false}>
+              <Link href={`/product/${product._id}`} prefetch={false}>
                 <Button
                   variant="secondary"
                   size="icon"
                   className="w-9 h-9 rounded-full glass-card hover:shadow-glow-primary hover-scale"
                 >
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-4 h-4 text-foreground" />
                 </Button>
               </Link>
             </div>
@@ -322,7 +362,7 @@ function ProductCardInner({
 
           {/* Quick View on Mobile */}
           <Link
-            href={`/product/${product.id}`}
+            href={`/product/${product._id}`}
             className="absolute inset-0 md:hidden"
             prefetch={false}
           />
@@ -336,13 +376,13 @@ function ProductCardInner({
               {product.brand}
             </span>
             <Badge variant="outline" className="text-xs capitalize">
-              {product.category.replace(/-/g, " ")}
+              {/* {product.category.replace(/-/g, " ")} */}
             </Badge>
           </div>
 
           {/* Product Name */}
           <Link
-            href={`/product/${product.id}`}
+            href={`/product/${product._id}`}
             className="block group/title"
             prefetch={false}
           >
@@ -393,7 +433,7 @@ function ProductCardInner({
             <Button
               size={size === "sm" ? "sm" : "default"}
               onClick={handleAddToCart}
-              disabled={isOutOfStock || isAddingToCart}
+              disabled={isOutOfStock || isAddingToCart || isCartLoading}
               className={cn(
                 "rounded-full transition-all duration-300 min-w-[48px] hover-glow shadow-soft",
                 isAddedToCart
@@ -401,7 +441,7 @@ function ProductCardInner({
                   : "hover:scale-105 active:scale-95",
               )}
             >
-              {isAddingToCart ? (
+              {isAddingToCart || isCartLoading ? (
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : isAddedToCart ? (
                 <Check className="w-4 h-4" />

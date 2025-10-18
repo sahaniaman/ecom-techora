@@ -9,7 +9,6 @@ import {
 import {
   ArrowRight,
   Crown,
-  Heart,
   LogOut,
   MapPin,
   Menu,
@@ -18,7 +17,6 @@ import {
   RotateCcw,
   Search,
   Settings,
-  ShoppingCart,
   Sparkles,
   User,
   Zap
@@ -36,7 +34,8 @@ import {
 import { getCurrentUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { ProductCategory } from "@/types/product";
-import { Badge } from "../ui/badge";
+import { CartDropdown } from "../buttons/cart-dropdown";
+import { WishlistDropdown } from "../buttons/wishlist-dropdown";
 import { Button, buttonVariants } from "../ui/button";
 import {
   DropdownMenu,
@@ -233,34 +232,10 @@ const Navbar = async () => {
               </DropdownMenu>
 
               {/* Wishlist */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-lg hover:bg-accent relative"
-                asChild
-              >
-                <Link href="/wishlist">
-                  <Heart className="w-5 h-5" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-red-500 text-white">
-                    0
-                  </Badge>
-                </Link>
-              </Button>
+              <WishlistDropdown />
 
               {/* Cart */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-lg hover:bg-accent relative"
-                asChild
-              >
-                <Link href="/cart">
-                  <ShoppingCart className="w-5 h-5" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-primary text-primary-foreground">
-                    0
-                  </Badge>
-                </Link>
-              </Button>
+              <CartDropdown />
             </div>
 
             <Sheet>
@@ -375,27 +350,9 @@ const Navbar = async () => {
 
                   {/* Quick Actions */}
                   <div className="border-t pt-4 space-y-2">
-                    <Link
-                      href="/wishlist"
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors text-base relative"
-                    >
-                      <Heart className="size-5" />
-                      Wishlist
-                      <Badge className="ml-auto h-6 w-6 rounded-full p-0 text-xs bg-red-500 text-white flex items-center justify-center">
-                        0
-                      </Badge>
-                    </Link>
+                    <WishlistDropdown />
 
-                    <Link
-                      href="/cart"
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors text-base relative"
-                    >
-                      <ShoppingCart className="size-5" />
-                      Shopping Cart
-                      <Badge className="ml-auto h-6 w-6 rounded-full p-0 text-xs bg-primary text-primary-foreground flex items-center justify-center">
-                        0
-                      </Badge>
-                    </Link>
+                    <CartDropdown />
                   </div>
 
                   {/* Categories Section */}

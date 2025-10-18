@@ -1,10 +1,9 @@
 // app/api/products/route.ts
+
+import { Types } from "mongoose";
 import { NextResponse } from "next/server";
-import mongoose, { Types } from "mongoose";
-import Product from "@/models/Products"; // adjust path if your models folder differs
-import Category from "@/models/Category"; // OPTIONAL: only if you want to validate category id
-import { headers } from "next/headers";
 import dbConnect from "@/lib/mongodb";
+import Product from "@/models/Products"; // adjust path if your models folder differs
 
 export async function POST(req: Request) {
   try {
