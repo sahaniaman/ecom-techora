@@ -12,4 +12,7 @@ export async function getCurrentUser() {
   return user ? user.toObject() : null;
 }
 
-
+export async function isStaffUser() {
+  const user = await getCurrentUser();
+  return user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+}
