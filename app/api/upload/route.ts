@@ -1,6 +1,7 @@
 // app/api/upload/route.ts
 import { v2 as cloudinary } from "cloudinary";
 import { NextResponse } from "next/server";
+import { isStaffUser } from "@/lib/auth";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -10,6 +11,10 @@ cloudinary.config({
 
 export async function POST(req: Request) {
   try {
+    if (!(await isStaffUser())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const formData = await req.formData();
     
     // Check if it's single file or multiple files
@@ -95,6 +100,10 @@ export async function POST(req: Request) {
 // DELETE endpoint (same as before)
 export async function DELETE(req: Request) {
   try {
+    if (!(await isStaffUser())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const { imageUrl } = await req.json();
 
     if (!imageUrl || !imageUrl.includes("cloudinary.com")) {
