@@ -4,9 +4,15 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { SimpleUser } from "@/components/tables/Columns";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
     try {
+        const currentUser = await getCurrentUser();
+        if (currentUser?.role !== "SUPER_ADMIN") {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+
         console.log("🔍 GET /api/admin/users called");
 
         await dbConnect();
