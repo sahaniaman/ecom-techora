@@ -1,6 +1,7 @@
 // app/api/admin/images/route.ts
 import { v2 as cloudinary } from "cloudinary";
 import { NextResponse } from "next/server";
+import { isStaffUser } from "@/lib/auth";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -10,6 +11,10 @@ cloudinary.config({
 
 export async function GET() {
   try {
+    if (!(await isStaffUser())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const [images, videos] = await Promise.all([
       cloudinary.api.resources({
         type: "upload",
@@ -39,6 +44,10 @@ export async function GET() {
 // app/api/admin/images/route.ts
 export async function DELETE(req: Request) {
   try {
+    if (!(await isStaffUser())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const { publicId } = await req.json();
 
     const result = await cloudinary.uploader.destroy(publicId);
