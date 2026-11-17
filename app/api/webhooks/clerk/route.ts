@@ -46,11 +46,6 @@ export async function POST(request: Request) {
   const { id } = evt.data;
   const eventType = evt.type;
 
-  console.log("CLERK_WEBHOOK_SECRET     ", CLERK_WEBHOOK_SECRET);
-  console.log("payload body     ", body);
-  console.log("evt     ", evt);
-  console.log("id     ", id);
-  console.log("eventType     ", eventType);
 
   if (eventType === "user.created") {
     try {
@@ -88,7 +83,6 @@ export async function POST(request: Request) {
         avatar = image_url;
       }
 
-      console.log("primaryEmail   ", primaryEmail);
 
       if (!primaryEmail) {
         return new Response("No Primary Email was Found.", { status: 404 });
@@ -106,7 +100,6 @@ export async function POST(request: Request) {
           avatar: avatar,
         },
       });
-      console.log("User Created in Database from webhook", newUser);
       return new Response("User Created in Database from webhook", {
         status: 200,
       });
