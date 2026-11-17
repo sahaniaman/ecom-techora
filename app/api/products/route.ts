@@ -3,10 +3,15 @@
 import { Types } from "mongoose";
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
+import { isStaffUser } from "@/lib/auth";
 import Product from "@/models/Products"; // adjust path if your models folder differs
 
 export async function POST(req: Request) {
   try {
+    if (!(await isStaffUser())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     await dbConnect();
 
     const body = await req.json();
@@ -238,6 +243,10 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    if (!(await isStaffUser())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     await dbConnect();
 
     const body = await request.json();
@@ -299,6 +308,10 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    if (!(await isStaffUser())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     await dbConnect();
 
     const { searchParams } = new URL(request.url);
